@@ -2,6 +2,7 @@
 #include <string>
 #include "boostheader.h"
 #include <cmath>
+#include <vector>
 
 /**
 pipe data structure to store the information related to pipes
@@ -112,8 +113,7 @@ public:
 		quantity<si::mass> mass
 	);
 
-	static pData pipeData[100];
-	static int availablePipeSizes;
+	static std::vector<pData> pipeData;
 
 	static int addValveSizeData
 	(
@@ -121,6 +121,6 @@ public:
 		std::string type,
 		quantity<length> equivalent_length
 	);
-	static vData valveData[100];
-	static int availableValveSizes;
+
+	static std::vector<vData> valveData;
 };

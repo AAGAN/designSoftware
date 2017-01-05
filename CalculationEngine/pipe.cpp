@@ -49,27 +49,29 @@ int pipe::addPipeSizeData
 	quantity<pressure> maxP,
 	quantity<pressure> minP,
 	int Type,
-	quantity<si::mass> mass
+	quantity<si::mass> MASS
 )
 {
-	availablePipeSizes++; //this needs to be initialized somewhere
-	pipeData[availablePipeSizes].schedule = schedule;
-	pipeData[availablePipeSizes].nominalSize = nominalSize;
-	pipeData[availablePipeSizes].thickness = thickness;
-	pipeData[availablePipeSizes].internalDiameter = internalDiameter;
-	pipeData[availablePipeSizes].frictionFactor = ff;
-	pipeData[availablePipeSizes].maximumPressureRating = maxP;
-	pipeData[availablePipeSizes].minimumPressureRating = minP;
-	pipeData[availablePipeSizes].type = Type;
-	pipeData[availablePipeSizes].massPerUnitLength = mass;
+	pData pipeDATA = {};
+	pipeDATA.schedule = schedule;
+	pipeDATA.nominalSize = nominalSize;
+	pipeDATA.thickness = thickness;
+	pipeDATA.internalDiameter = internalDiameter;
+	pipeDATA.frictionFactor = ff;
+	pipeDATA.maximumPressureRating = maxP;
+	pipeDATA.minimumPressureRating = minP;
+	pipeDATA.type = Type;
+	pipeDATA.massPerUnitLength = MASS;
+	pipeData.push_back(pipeDATA);
 	return 0;
 }
 
 int pipe::addValveSizeData(quantity<length> nominal_size, std::string type, quantity<length> equivalent_length)
 {
-	availableValveSizes++;
-	valveData[availableValveSizes].nominalSize = nominal_size;
-	valveData[availableValveSizes].equivalentLength = equivalent_length;
-	valveData[availableValveSizes].type = type;
+	vData valveDATA = {};
+	valveDATA.nominalSize = nominal_size;
+	valveDATA.type = type;
+	valveDATA.equivalentLength = equivalent_length;
+	valveData.push_back(valveDATA);
 	return 0;
 }

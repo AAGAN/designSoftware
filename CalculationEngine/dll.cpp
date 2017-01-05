@@ -14,17 +14,50 @@ std::vector<hazard> hazards;
 bool hazard_exists(int);
 bool enclosure_exists(int, int);
 
-///these are the static variables used to store the pipe and valve databases
-///pipeData is an array of struct of pData type and is defined as
-///part of the pipe class, valveData is an array of struct of vData type and 
+///these are the static vector of structs used to store the pipe and valve databases
+///pipeData is a vector of struct of pData type and is defined as
+///part of the pipe class, valveData is a vector of struct of vData type and 
 ///is defined as part of the pipe class, all pipes will share these databases 
 ///because these are static members of the pipe class. since these are
 ///static members of the class, they should be initialized outside the definition
 ///of the pipe class in the global scope
-pData pipe::pipeData[] = { { 0 } };
-int pipe::availablePipeSizes = 0;
-vData pipe::valveData[] = { {0} };
-int pipe::availableValveSizes = 0;
+std::vector<pData> pipe::pipeData;
+std::vector<vData> pipe::valveData;
+
+
+//pData pipe::pipeData[] = { { 0 } };
+//
+//pData pipe::pipeData[] = {0};
+//
+//pData pipe::pipeData[] = 
+//{ 
+//	{
+//		0, 
+//		1*meters, 
+//		1*meters, 
+//		1*meters, 
+//		1,
+//		1*pascals,
+//		1*pascals,
+//		1,
+//		1*kilogrammes
+//	},
+//	{
+//		0,
+//		1 * meters,
+//		1 * meters,
+//		1 * meters,
+//		1,
+//		1 * pascals,
+//		1 * pascals,
+//		1,
+//		1 * kilogrammes
+//	}
+//};
+
+//int pipe::availablePipeSizes = 0;
+//vData pipe::valveData[] = { {0} };
+//int pipe::availableValveSizes = 0;
 
 int __stdcall add_hazard
 (
@@ -421,11 +454,11 @@ int __stdcall add_pipe_size_data
 	pipe::addPipeSizeData
 	(
 		schedule, 
-		nominal_size*meters, 
-		thickness*meters, 
-		internal_diameter*meters, 
+		nominal_size * meters, 
+		thickness * meters, 
+		internal_diameter * meters, 
 		friction_factor,
-		maximum_pressure_rating*pascals,
+		maximum_pressure_rating * pascals,
 		maximum_pressure_rating * pascals,
 		type,
 		mass_per_unit_length * kilogram
@@ -437,7 +470,12 @@ int __stdcall add_valve_size_data(double nominal_size, double equivalent_length,
 {
 	std::string valve_type;
 	if (Type == 1) valve_type = "selector";
-	pipe::addValveSizeData(nominal_size*meters, valve_type, equivalent_length*meters);
+	pipe::addValveSizeData
+	(
+		nominal_size * meters, 
+		valve_type, 
+		equivalent_length*meters
+	);
 	return 0;
 }
 
