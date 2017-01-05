@@ -24,41 +24,6 @@ bool enclosure_exists(int, int);
 std::vector<pData> pipe::pipeData;
 std::vector<vData> pipe::valveData;
 
-
-//pData pipe::pipeData[] = { { 0 } };
-//
-//pData pipe::pipeData[] = {0};
-//
-//pData pipe::pipeData[] = 
-//{ 
-//	{
-//		0, 
-//		1*meters, 
-//		1*meters, 
-//		1*meters, 
-//		1,
-//		1*pascals,
-//		1*pascals,
-//		1,
-//		1*kilogrammes
-//	},
-//	{
-//		0,
-//		1 * meters,
-//		1 * meters,
-//		1 * meters,
-//		1,
-//		1 * pascals,
-//		1 * pascals,
-//		1,
-//		1 * kilogrammes
-//	}
-//};
-
-//int pipe::availablePipeSizes = 0;
-//vData pipe::valveData[] = { {0} };
-//int pipe::availableValveSizes = 0;
-
 int __stdcall add_hazard
 (
 	int ID,
