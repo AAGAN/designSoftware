@@ -1,0 +1,20 @@
+LIBRARY CalculationEngine
+EXPORTS
+	add_hazard @1
+    remove_hazard @2
+    remove_enclosure @3
+	add_enclosure @4
+    update_hazard_info @5
+    get_enclosure_info @6
+	get_hazard_info @7
+    get_pipe_info @8
+    get_node_info @9
+    add_node @10
+    remove_node @11
+    reset_network @12
+    add_pipe @13
+    remove_pipe @14
+    update_pipe_network @15
+    add_cylinder @16
+    add_pipe_size_data @17
+    add_valve_size_data @18

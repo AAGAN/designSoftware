@@ -1,0 +1,64 @@
+#pragma once
+
+#include "boostheader.h"
+#include "enclosure.h"
+#include <vector>
+#include <iostream>
+#include <string>
+#include <pipe.h>
+#include <node.h>
+#include <fstream>
+
+/**
+this class defines the hazards which may include many enclosures. 
+Each hazard is protected by all the cylinders. 
+different hazards can be protected by using selector valves.
+*/
+class hazard
+{
+public:
+	hazard();
+	hazard(int ID, std::string Name, quantity<volume> bottleVol, quantity<time> dischargeTime);//!<constructing the hazard with the size of the cylinders 
+	~hazard();
+	void addEnclosure(enclosure enc);
+	void info();
+	quantity<time> get_discharge_time() { return discharge_time; }
+	int get_id() { return id; }
+	std::vector<enclosure> enclosures;
+	std::vector<node> nodes;
+	std::vector<pipe> pipes;
+	quantity<volume> get_min_total_agent_required() { return minTotalInergenVolReq; }
+	std::string get_name() { return name; }
+	int get_number_containers() { return numContainers; }
+	quantity<volume> get_supplied_agent_volume() { return suppliedInergenVol; }
+	int update_hazard();
+	void set_number_cylinders(int num_cyl) { numContainers = num_cyl; }
+	void set_cylinder_volume(quantity<volume> cyl_vol) { containerVolSize = cyl_vol; }
+	void set_discharge_time(quantity<time> dis_time) { discharge_time = dis_time; }
+	void update_pipe_network();
+private:
+	std::string name;
+	int id;	
+	quantity<volume> containerVolSize; //!< common containers used for inergen are either 22.3 or 39.0 cubic meters
+	int numContainers;
+	quantity<volume> minTotalInergenVolReq;
+	quantity<volume> suppliedInergenVol;
+	int numEnclosures;
+	quantity<volume> estimated_system_flow_rate;
+	quantity<time> discharge_time;
+	
+	void assign_supplied_inergen_vol(); //!< Assigns the volume calculated from cylinders
+	void assign_flooding_factor();
+	void check_design_concentration();
+	void calc_estimated_system_flow_rate();
+	void assign_gas_flow_rate();
+	void assign_nozzle_quantity();
+	int calcNumInergenContainers();
+	quantity<volume> calcActualInergenVol();
+	quantity<volume> calcMinTotalInergenVol();
+	void  assign_o2_co2_concentration();
+	void output_data(std::string filename);
+	void set_pipe_length();
+	
+	
+};
