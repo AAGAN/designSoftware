@@ -1,4 +1,5 @@
 #pragma once
+#include <hazard.h>
 #include <string>
 #include "boostheader.h"
 #include <vector>
@@ -10,12 +11,13 @@
 	0- nozzle (orifice is a part of a nozzle)
 	1- elbow (has an angle) 
 	2- manifold outlet (the first node in the piping system)
-	3- bullhead tee (side branch is first input for properties)
+	3- bullhead tee (side branch is first input for properties, pipe 2 is second and pipe 3 is third)
 	4- side-through tee (side branch is first, inlet is second, through outlet is third input for properties)
 	5- coupling (can change the diameter, has pressure drop)
 	10 - iFlow valve (on a cylinder)
 	11 - CV-98 valve (on a cylinder)
 */
+class hazard;
 class pipe;
 class node
 {
@@ -33,6 +35,9 @@ protected:
 	quantity<length> z; //!< Z coordinate
 
 	quantity<length> orifice_diameter; //!< for nozzles
+
+	quantity<pressure> pressureDrop1; //!< pressure drop across the node (if tee, pressure drop across input and first side)
+	quantity<pressure> pressureDrop2; //!< pressure drop across the node (if not tee then 0, if tee, pressure drop across input and second side or through)
 
 public:
 	node();
@@ -79,4 +84,6 @@ public:
 	int get_pipe3() { return pipe3; }
 
 	std::string get_type() { return type; }
+
+	int update_hydraulics(hazard& Haz);
 };

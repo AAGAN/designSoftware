@@ -1,11 +1,8 @@
 #include "node.h"
-#include "boostheader.h"
-#include "pipe.h"
 
 node::node()
 {
 }
-
 
 node::~node()
 {
@@ -46,5 +43,24 @@ node::node(int Id, int Type, int Pipe1_id, int Pipe2_id, int Pipe3_id, quantity<
 	default:
 		break;
 	}
+	pressureDrop1 = 0 * pascals;
+	pressureDrop2 = 0 * pascals;
+}
+
+/**
+calculates the pressure across the node, uses the pressure 
+from the end of the input pipe and assigns the 
+calculated pressure(s) to the beginning of the pipe(s) connected
+to the node
+*/
+int node::update_hydraulics(hazard& Haz)
+{
+	//calculate pressureDrop1
+	//calculate PressureDrop2
+
+	Haz.pipes[pipe2id].set_p1(Haz.pipes[pipe1id].p2 - pressureDrop1);
+	if (type == "Bull Tee" || type == "Side Tee")
+		Haz.pipes[pipe3id].set_p1(Haz.pipes[pipe1id].p2 - pressureDrop2);
+	return 0;
 }
 

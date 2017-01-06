@@ -1,4 +1,5 @@
 #pragma once
+#include <hazard.h>
 #include <string>
 #include "boostheader.h"
 #include <cmath>
@@ -45,14 +46,10 @@ protected:
 
 	std::string type;
 
-	//node * node1;
-	//node * node2;
-
 	int node1;
 	int node2;
 
-	quantity<pressure> p1;
-	quantity<pressure> p2;
+	
 
 	quantity<pressure> maxPressure;
 	quantity<pressure> minPressure;
@@ -62,8 +59,6 @@ protected:
 	quantity<length> diameter1;
 	quantity<length> diameter2;
 	
-    
-
 public:
 	pipe();
 	~pipe();
@@ -72,6 +67,9 @@ public:
 	int node2id;
 
 	int index;
+
+	quantity<pressure> p1;
+	quantity<pressure> p2;
 
 	pipe
 	(
@@ -123,4 +121,6 @@ public:
 	);
 
 	static std::vector<vData> valveData;
+
+
 };

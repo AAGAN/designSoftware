@@ -1,5 +1,5 @@
 #include "pipe.h"
-#include "node.h"
+
 
 pipe::pipe()
 {
