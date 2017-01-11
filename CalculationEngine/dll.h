@@ -206,7 +206,10 @@ extern "C" int __stdcall add_node
 	double x_coordinate = 0.0, //!< in meters
 	double y_coordinate = 0.0, //!< in meters
 	double z_coordinate = 0.0, //!< in meters
-	double orifice_diameter = 0.0 //!< if the node is a nozzle (type = 0) in meters
+	double orifice_diameter = 0.0, //!< if the node is a nozzle (type = 0) in meters
+	int enclosure_id = 0, //!< if the node is a nozzle the id of the associated enclosure
+	double required_gas_quantity = 0.0, //!< if the node is a nozzle, this is the required gas quantity of enclosure divided by number of nozzles in that enclosure
+	double supplied_gas_quantity = 0.0 //!< if the node is a nozzle, this is the supplied gas quantity of enclosure divided by number of nozzles in that enclosure
 );
 
 /** removes a node from a hazard*/

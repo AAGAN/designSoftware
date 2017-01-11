@@ -10,6 +10,7 @@
 
 bool NFPA2001 = 1;
 std::vector<hazard> hazards;
+int global_cylinder_quantity;
 
 bool hazard_exists(int);
 bool enclosure_exists(int, int);
@@ -328,6 +329,7 @@ bool __stdcall get_hazard_info
             out->minimum_total_agent_required = haz.get_min_total_agent_required().value();
             out->number_containers = haz.get_number_containers();
             out->supplied_agent_volume = haz.get_supplied_agent_volume().value();
+			global_cylinder_quantity = haz.get_number_containers();
             return true;
 		}
 	}
@@ -368,7 +370,21 @@ int __stdcall get_node_info(int node_id, int hazard_id, NODE * out)
 	return 0;
 }
 
-int __stdcall add_node(int node_id, int hazard_id, int type, int pipe1_id, int pipe2_id, int pipe3_id, double x_coordinate, double y_coordinate, double z_coordinate, double orifice_diameter)
+int __stdcall add_node(
+	int node_id, 
+	int hazard_id, 
+	int type, 
+	int pipe1_id, 
+	int pipe2_id, 
+	int pipe3_id, 
+	double x_coordinate, 
+	double y_coordinate, 
+	double z_coordinate, 
+	double orifice_diameter,
+	int enclosure_id,
+	double required_gas_quantity,
+	double supplied_gas_quantity
+)
 {
 	quantity<length> x_coord, y_coord, z_coord, orfice_diam;
 	node nd(node_id,type,pipe1_id,pipe2_id,pipe3_id,x_coord.from_value(x_coordinate),y_coord.from_value(y_coordinate),z_coord.from_value(z_coordinate));

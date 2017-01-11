@@ -52,6 +52,20 @@ calculates the pressure across the node, uses the pressure
 from the end of the input pipe and assigns the 
 calculated pressure(s) to the beginning of the pipe(s) connected
 to the node
+----------------------------------------
+Equivalent length for threaded fittings:
+	Elbow: 0.5 * 30 * ID
+	Through Tee: 20 * ID
+	Side Tee Branch: 60 * ID
+	Coupling: 5 * ID
+----------------------------------------
+Equivalent length for welded fittings:
+	Elbow: 0.5 * 16 * ID
+	Through Tee: 13 * ID
+	Side Tee branch: 40 * ID
+	Coupling: 5 * ID
+----------------------------------------
+Standard eq. length of 90s is halved per request of customer 21/12/2009
 */
 int node::update_hydraulics(hazard& Haz)
 {
@@ -61,6 +75,11 @@ int node::update_hydraulics(hazard& Haz)
 	Haz.pipes[pipe2id].set_p1(Haz.pipes[pipe1id].p2 - pressureDrop1);
 	if (type == "Bull Tee" || type == "Side Tee")
 		Haz.pipes[pipe3id].set_p1(Haz.pipes[pipe1id].p2 - pressureDrop2);
+
+	//calculate and assign the flow (mass flow rate) at the beginning of the 
+	//next pipes based on the mass flow rate at the end of the previous
+	//pipe
+
 	return 0;
 }
 

@@ -121,6 +121,4 @@ public:
 	);
 
 	static std::vector<vData> valveData;
-
-
 };

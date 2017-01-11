@@ -8,7 +8,7 @@
 	node class
 	a node can be any of the following types:
 	
-	0- nozzle (orifice is a part of a nozzle)
+	0- nozzle (orifice is a part of a nozzle), has required quantity associated with it
 	1- elbow (has an angle) 
 	2- manifold outlet (the first node in the piping system)
 	3- bullhead tee (side branch is first input for properties, pipe 2 is second and pipe 3 is third)
@@ -35,6 +35,7 @@ protected:
 	quantity<length> z; //!< Z coordinate
 
 	quantity<length> orifice_diameter; //!< for nozzles
+	//nozzles have the quantity of gas associated with them
 
 	quantity<pressure> pressureDrop1; //!< pressure drop across the node (if tee, pressure drop across input and first side)
 	quantity<pressure> pressureDrop2; //!< pressure drop across the node (if not tee then 0, if tee, pressure drop across input and second side or through)
