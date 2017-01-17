@@ -25,6 +25,28 @@ bool enclosure_exists(int, int);
 std::vector<pData> pipe::pipeData;
 std::vector<vData> pipe::valveData;
 
+/**
+calculate_density is a global function that calculates the density of an inert gas (with specified heat_capacity_ratio)
+based on the stagnation density and stagnation pressure at any static pressure. 
+*/
+quantity<mass_density> calculate_density
+(
+	quantity<mass_density> stagnation_density,
+	quantity<pressure> stagnation_pressure,
+	quantity<pressure> static_pressure,
+	quantity<dimensionless> heat_capacity_ratio
+)
+{
+	quantity<mass_density> static_density;
+	static_density = 
+		stagnation_density 
+		* pow(
+				(stagnation_pressure / static_pressure), 
+				((1 - 2 * heat_capacity_ratio) / heat_capacity_ratio)
+			 );
+	return static_density;
+}
+
 int __stdcall add_hazard
 (
 	int ID,
@@ -213,7 +235,9 @@ bool enclosure_exists
 	return false;
 }
 
-/**checks if a node with the id of node_id exists in a hazard with id of hazard_id*/
+/**
+checks if a node with the id of node_id exists in a hazard with id of hazard_id
+*/
 bool node_exist
 (
 	int node_id, 
@@ -336,7 +360,12 @@ bool __stdcall get_hazard_info
 	return false;
 }
 
-int __stdcall get_pipe_info(int pipe_id, int hazard_id, PIPE * out)
+int __stdcall get_pipe_info
+(
+	int pipe_id, 
+	int hazard_id, 
+	PIPE * out
+)
 {
 	*out = PIPE{};
 	out->pipe_id = -1;
@@ -353,7 +382,12 @@ int __stdcall get_pipe_info(int pipe_id, int hazard_id, PIPE * out)
 	return -1;
 }
 
-int __stdcall get_node_info(int node_id, int hazard_id, NODE * out)
+int __stdcall get_node_info
+(
+	int node_id, 
+	int hazard_id, 
+	NODE * out
+)
 {
 	*out = NODE{};
 	out->node_id = -1;
@@ -403,7 +437,15 @@ int __stdcall add_node(
 /**
 Cylinder is a type of node.
 */
-int __stdcall add_cylinder(int cylinder_id, int hazard_id, int type, double x_coordinate, double y_coordinate, double z_coordinate)
+int __stdcall add_cylinder
+(
+	int cylinder_id, 
+	int hazard_id, 
+	int type, 
+	double x_coordinate, 
+	double y_coordinate, 
+	double z_coordinate
+)
 {
 	quantity<length> x, y, z;
 	x = x.from_value(x_coordinate);
@@ -445,7 +487,12 @@ int __stdcall add_pipe_size_data
 	return 0;
 }
 
-int __stdcall add_valve_size_data(double nominal_size, double equivalent_length, int Type)
+int __stdcall add_valve_size_data
+(
+	double nominal_size, 
+	double equivalent_length, 
+	int Type
+)
 {
 	std::string valve_type;
 	if (Type == 1) valve_type = "selector";
@@ -458,7 +505,11 @@ int __stdcall add_valve_size_data(double nominal_size, double equivalent_length,
 	return 0;
 }
 
-int __stdcall remove_node(int node_id, int hazard_id)
+int __stdcall remove_node
+(
+	int node_id, 
+	int hazard_id
+)
 {
 	for (auto& Haz : hazards)
 		if (Haz.get_id() == hazard_id)
@@ -471,7 +522,10 @@ int __stdcall remove_node(int node_id, int hazard_id)
 	return -1;
 }
 
-int __stdcall reset_network(int hazard_id)
+int __stdcall reset_network
+(
+	int hazard_id
+)
 {
 	for (auto& haz : hazards)
 		if (haz.get_id() == hazard_id)
@@ -482,7 +536,15 @@ int __stdcall reset_network(int hazard_id)
 	return 0;
 }
 
-int __stdcall add_pipe(int pipe_id, int hazard_id, int type, int node1_id, int node2_id, double diameter)
+int __stdcall add_pipe
+(
+	int pipe_id, 
+	int hazard_id, 
+	int type, 
+	int node1_id, 
+	int node2_id, 
+	double diameter
+)
 {
 	quantity<length> diam1, diam2;
 	pipe pp(pipe_id, type, node1_id, node2_id, diam1.from_value(diameter),diam2.from_value(diameter));
@@ -497,7 +559,11 @@ int __stdcall add_pipe(int pipe_id, int hazard_id, int type, int node1_id, int n
 	return -1; //if we get here, there is something wrong!
 }
 
-int __stdcall remove_pipe(int pipe_id, int hazard_id)
+int __stdcall remove_pipe
+(
+	int pipe_id, 
+	int hazard_id
+)
 {
 	for (auto& Haz : hazards)
 		if (Haz.get_id() == hazard_id)
@@ -510,7 +576,10 @@ int __stdcall remove_pipe(int pipe_id, int hazard_id)
 	return -1;
 }
 
-int __stdcall update_pipe_network(int hazard_id)
+int __stdcall update_pipe_network
+(
+	int hazard_id
+)
 {
 	for (auto& haz : hazards)
 	{

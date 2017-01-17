@@ -52,20 +52,6 @@ calculates the pressure across the node, uses the pressure
 from the end of the input pipe and assigns the 
 calculated pressure(s) to the beginning of the pipe(s) connected
 to the node
-----------------------------------------
-Equivalent length for threaded fittings:
-	Elbow: 0.5 * 30 * ID
-	Through Tee: 20 * ID
-	Side Tee Branch: 60 * ID
-	Coupling: 5 * ID
-----------------------------------------
-Equivalent length for welded fittings:
-	Elbow: 0.5 * 16 * ID
-	Through Tee: 13 * ID
-	Side Tee branch: 40 * ID
-	Coupling: 5 * ID
-----------------------------------------
-Standard eq. length of 90s is halved per request of customer 21/12/2009
 */
 int node::update_hydraulics(hazard& Haz)
 {
@@ -83,3 +69,72 @@ int node::update_hydraulics(hazard& Haz)
 	return 0;
 }
 
+/**
+----------------------------------------
+Equivalent length for threaded fittings:
+Elbow: 0.5 * 30 * ID
+Through Tee: 20 * ID
+Side Tee Branch: 60 * ID
+Coupling: 5 * ID
+----------------------------------------
+Equivalent length for welded fittings:
+Elbow: 0.5 * 16 * ID
+Through Tee: 13 * ID
+Side Tee branch: 40 * ID
+Coupling: 5 * ID
+----------------------------------------
+Standard eq. length of 90s is halved per request of customer 21/12/2009
+*/
+int node::set_equivalent_length(quantity<length> internal_diameter, std::string Type)
+{
+	if(Type == "Elbow")
+	{
+		if (connection_type == 1)
+		{
+			equivalent_length_1 = 0.5 * 30.0 * internal_diameter;
+			equivalent_length_2 = 0 * meters;
+		}
+		else if (connection_type == 2)
+		{
+			equivalent_length_1 = 0.5 * 16.0 * internal_diameter;
+			equivalent_length_2 = 0 * meters;
+		}
+	}
+	else if (Type == "Bull Tee")
+	{
+		if (connection_type == 1)
+		{
+			equivalent_length_1 = 0.5 * 30.0 * internal_diameter;
+			equivalent_length_2 = 0.5 * 30.0 * internal_diameter;
+		}
+		else if (connection_type == 2)
+		{
+			equivalent_length_1 = 0.5 * 16.0 * internal_diameter;
+			equivalent_length_2 = 0.5 * 16.0 * internal_diameter;
+		}
+	}
+	else if (Type == "Side Tee")
+	{
+		if (connection_type == 1)
+		{
+			equivalent_length_1 = 20.0 * internal_diameter;
+			equivalent_length_2 = 60.0 * internal_diameter;
+		}
+		else if (connection_type == 2)
+		{
+			equivalent_length_1 = 13.0 * internal_diameter;
+			equivalent_length_2 = 40.0 * internal_diameter;
+		}
+	}
+	else if (Type == "Coupling")
+	{
+		equivalent_length_1 = 5.0 * internal_diameter;
+		equivalent_length_2 = 0.0 * internal_diameter;
+	}
+	else
+	{
+		equivalent_length_1 = 0.0 * meters;
+		equivalent_length_2 = 0.0 * meters;
+	}
+	
+}

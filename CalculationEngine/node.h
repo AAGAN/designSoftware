@@ -25,6 +25,7 @@ protected:
 	int id; 
 	
 	std::string type;
+	int connection_type; //!< threaded = 1 , welded = 2
 	
 	int pipe1;
 	int pipe2;
@@ -87,4 +88,9 @@ public:
 	std::string get_type() { return type; }
 
 	int update_hydraulics(hazard& Haz);
+
+	quantity<length> equivalent_length_1; //!<equivalent length in 1st direction
+	quantity<length> equivalent_length_2; //!<equivalent length in 2nd direction (only for tees)
+
+	int set_equivalent_length(quantity<length>, std::string);
 };
