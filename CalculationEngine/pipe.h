@@ -16,9 +16,9 @@ struct pData
 	quantity<length> internalDiameter;
 	quantity<dimensionless> frictionFactor;
 	quantity<pressure> maximumPressureRating;
-	quantity<pressure> minimumPressureRating;
+	//quantity<pressure> minimumPressureRating;//should be removed!
 	int type; //Threaded = 1, Welded = 2
-	quantity<si::mass> massPerUnitLength;
+	quantity<mass_per_unit_length_unit> massPerUnitLength;
 };
 
 /**
@@ -58,6 +58,8 @@ protected:
 	
 	quantity<length> diameter1;
 	quantity<length> diameter2;
+
+	quantity<mass_flow_rate_unit> massFlowRate;
 	
 public:
 	pipe();
@@ -100,15 +102,14 @@ public:
 
 	static int addPipeSizeData
 	(
-		int schedule, 
-		quantity<length> nominalSize, 
-		quantity<length> thickness, 
-		quantity<length> internalDiameter, 
+		int schedule,
+		quantity<length> nominalSize,
+		quantity<length> thickness,
+		quantity<length> internalDiameter,
 		quantity<dimensionless> ff,
 		quantity<pressure> maxP,
-		quantity<pressure> minP,
 		int Type,
-		quantity<si::mass> mass
+		quantity<mass_per_unit_length_unit> mass_per_unit_length
 	);
 
 	static std::vector<pData> pipeData;

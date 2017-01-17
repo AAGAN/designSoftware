@@ -427,9 +427,8 @@ int __stdcall add_pipe_size_data
 	double internal_diameter, 
 	double friction_factor,
 	double maximum_pressure_rating,
-	double minimum_pressure_rating,
 	int type,
-	double mass_per_unit_length
+	double mass_per_unit_Length
 )
 {
 	pipe::addPipeSizeData
@@ -440,9 +439,8 @@ int __stdcall add_pipe_size_data
 		internal_diameter * meters, 
 		friction_factor,
 		maximum_pressure_rating * pascals,
-		maximum_pressure_rating * pascals,
 		type,
-		mass_per_unit_length * kilogram
+		mass_per_unit_Length * kilogram_per_meters
 	);
 	return 0;
 }

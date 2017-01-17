@@ -41,15 +41,14 @@ populates the pipe data structure "pipeData"
 */
 int pipe::addPipeSizeData
 (
-	int schedule, 
-	quantity<length> nominalSize, 
-	quantity<length> thickness, 
+	int schedule,
+	quantity<length> nominalSize,
+	quantity<length> thickness,
 	quantity<length> internalDiameter,
 	quantity<dimensionless> ff,
 	quantity<pressure> maxP,
-	quantity<pressure> minP,
 	int Type,
-	quantity<si::mass> MASS
+	quantity<mass_per_unit_length_unit> mass_per_unit_length
 )
 {
 	pData pipeDATA = {};
@@ -59,9 +58,8 @@ int pipe::addPipeSizeData
 	pipeDATA.internalDiameter = internalDiameter;
 	pipeDATA.frictionFactor = ff;
 	pipeDATA.maximumPressureRating = maxP;
-	pipeDATA.minimumPressureRating = minP;
 	pipeDATA.type = Type;
-	pipeDATA.massPerUnitLength = MASS;
+	pipeDATA.massPerUnitLength = mass_per_unit_length;
 	pipeData.push_back(pipeDATA);
 	return 0;
 }

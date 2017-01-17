@@ -298,7 +298,6 @@ extern "C" int __stdcall add_pipe_size_data
 	double internal_diameter,
 	double friction_factor,
 	double maximum_pressure_rating,
-	double minimum_pressure_rating,
 	int type, //threaded = 1, welded = 2
 	double mass_per_unit_length
 );
