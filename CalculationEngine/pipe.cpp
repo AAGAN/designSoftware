@@ -64,7 +64,12 @@ int pipe::addPipeSizeData
 	return 0;
 }
 
-int pipe::addValveSizeData(quantity<length> nominal_size, std::string type, quantity<length> equivalent_length)
+int pipe::addValveSizeData
+(
+	quantity<length> nominal_size, 
+	std::string type, 
+	quantity<length> equivalent_length
+)
 {
 	vData valveDATA = {};
 	valveDATA.nominalSize = nominal_size;
@@ -72,4 +77,25 @@ int pipe::addValveSizeData(quantity<length> nominal_size, std::string type, quan
 	valveDATA.equivalentLength = equivalent_length;
 	valveData.push_back(valveDATA);
 	return 0;
+}
+
+/**
+
+*/
+mass_flow_rate pipe::get_min_mass_flow_rate()
+{
+	mass_flow_rate MIN_MFR_SI;
+	double minMassFlowRate;
+	double ID;
+	ID = internal_diameter.value() * 0.0254; //conversion from meters to inches
+	//this equation is derived experimentally and the output is in lb/min
+	minMassFlowRate = 0.567*(2.07 - 10.388*ID + 32.82*pow(ID, 2) + 1.696*pow(ID, 3.0));
+	minMassFlowRate *= 0.00756; //conversion from lb/min to kg/s
+	MIN_MFR_SI.from_value(minMassFlowRate);
+	return MIN_MFR_SI;
+}
+
+mass_flow_rate pipe::get_max_mass_flow_rate()
+{
+	return 10.582 * get_min_mass_flow_rate();
 }

@@ -31,7 +31,7 @@ struct vData
 	quantity<length> equivalentLength;
 };
 
-/*!
+/**
 	pipe class 
 	a pipe can be any of the following types:
 
@@ -60,6 +60,8 @@ protected:
 	quantity<length> diameter2;
 
 	quantity<mass_flow_rate_unit> massFlowRate;
+
+	quantity<length> internal_diameter;
 	
 public:
 	pipe();
@@ -109,7 +111,7 @@ public:
 		quantity<dimensionless> ff,
 		quantity<pressure> maxP,
 		int Type,
-		quantity<mass_per_unit_length_unit> mass_per_unit_length
+		quantity<mass_per_unit_length_unit> mass_per_unit_Length
 	);
 
 	static std::vector<pData> pipeData;
@@ -122,4 +124,7 @@ public:
 	);
 
 	static std::vector<vData> valveData;
+
+	mass_flow_rate get_min_mass_flow_rate();
+	mass_flow_rate get_max_mass_flow_rate();
 };

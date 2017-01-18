@@ -421,7 +421,21 @@ int __stdcall add_node(
 )
 {
 	quantity<length> x_coord, y_coord, z_coord, orfice_diam;
-	node nd(node_id,type,pipe1_id,pipe2_id,pipe3_id,x_coord.from_value(x_coordinate),y_coord.from_value(y_coordinate),z_coord.from_value(z_coordinate));
+	quantity<volume> requiredGasQuantity, suppliedGasQuantity;
+	node nd
+	(
+		node_id,
+		type,
+		pipe1_id,
+		pipe2_id,
+		pipe3_id,
+		x_coord.from_value(x_coordinate),
+		y_coord.from_value(y_coordinate),
+		z_coord.from_value(z_coordinate),
+		requiredGasQuantity.from_value(required_gas_quantity),
+		suppliedGasQuantity.from_value(supplied_gas_quantity)
+	);
+	
 	if (type == 0) nd.set_orifice_diameter(orfice_diam.from_value(orifice_diameter));
 	if (node_exist(node_id, hazard_id))
 		remove_node(node_id, hazard_id);
@@ -447,11 +461,19 @@ int __stdcall add_cylinder
 	double z_coordinate
 )
 {
-	quantity<length> x, y, z;
-	x = x.from_value(x_coordinate);
-	y = y.from_value(y_coordinate);
-	z = z.from_value(z_coordinate);
-	node nd(cylinder_id, 10 + type, 0, 0, 0, x, y, z);
+	node nd
+	(
+		cylinder_id, 
+		10 + type,
+		0,
+		0,
+		0,
+		x_coordinate * meters,
+		y_coordinate * meters,
+		z_coordinate * meters,
+		0.0 * cubic_meter,
+		0.0 * cubic_meters
+	);
 	for (auto& haz : hazards)
 		if (haz.get_id() == hazard_id)
 		{

@@ -8,8 +8,24 @@ node::~node()
 {
 }
 
-node::node(int Id, int Type, int Pipe1_id, int Pipe2_id, int Pipe3_id, quantity<length> x_coord, quantity<length> y_coord, quantity<length> z_coord)
-	:id(Id), pipe1id(Pipe1_id), pipe2id(Pipe2_id),pipe3id(Pipe3_id),x(x_coord),y(y_coord),z(z_coord)
+node::node
+(
+	int Id, 
+	int Type, 
+	int Pipe1_id, 
+	int Pipe2_id, 
+	int Pipe3_id, 
+	quantity<length> x_coord, 
+	quantity<length> y_coord, 
+	quantity<length> z_coord,
+	quantity<volume> suppliedGasQuantity,
+	quantity<volume> requiredGasQuantity
+)
+	:id(Id), pipe1id(Pipe1_id), 
+	pipe2id(Pipe2_id),pipe3id(Pipe3_id),
+	x(x_coord),y(y_coord),z(z_coord),
+	required_gas_quantity(requiredGasQuantity),
+	supplied_gas_quantity(suppliedGasQuantity)
 {
 	switch (Type)
 	{

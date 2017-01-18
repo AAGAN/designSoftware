@@ -35,8 +35,9 @@ protected:
 	quantity<length> y; //!< Y coordinate
 	quantity<length> z; //!< Z coordinate
 
-	quantity<length> orifice_diameter; //!< for nozzles
-	//nozzles have the quantity of gas associated with them
+	quantity<length> orifice_diameter; //!< only for nozzles
+	quantity<volume> required_gas_quantity; //!< only for nozzles
+	quantity<volume> supplied_gas_quantity; //!< only for nozzles
 
 	quantity<pressure> pressureDrop1; //!< pressure drop across the node (if tee, pressure drop across input and first side)
 	quantity<pressure> pressureDrop2; //!< pressure drop across the node (if not tee then 0, if tee, pressure drop across input and second side or through)
@@ -60,7 +61,9 @@ public:
 		int Pipe3_id,
 		quantity<length> x_coord,
 		quantity<length> y_coord,
-		quantity<length> z_coord
+		quantity<length> z_coord,
+		quantity<volume> suppliedGasQuantity,
+		quantity<volume> requiredGasQuantity
 	);
 
 	int get_id() { return id; }
