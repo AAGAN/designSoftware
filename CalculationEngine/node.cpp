@@ -15,11 +15,11 @@ node::node
 	int Pipe1_id, 
 	int Pipe2_id, 
 	int Pipe3_id, 
-	quantity<length> x_coord, 
-	quantity<length> y_coord, 
-	quantity<length> z_coord,
-	quantity<volume> suppliedGasQuantity,
-	quantity<volume> requiredGasQuantity
+	double x_coord,
+	double y_coord,
+	double z_coord,
+	double suppliedGasQuantity,
+	double requiredGasQuantity
 )
 	:id(Id), pipe1id(Pipe1_id), 
 	pipe2id(Pipe2_id),pipe3id(Pipe3_id),
@@ -59,8 +59,8 @@ node::node
 	default:
 		break;
 	}
-	pressureDrop1 = 0 * pascals;
-	pressureDrop2 = 0 * pascals;
+	pressureDrop1 = 0;// *pascals;
+	pressureDrop2 = 0;// *pascals;
 }
 
 /**
@@ -74,9 +74,9 @@ int node::update_hydraulics(hazard& Haz)
 	//calculate pressureDrop1
 	//calculate PressureDrop2
 
-	Haz.pipes[pipe2id].set_p1(Haz.pipes[pipe1id].p2 - pressureDrop1);
+	/*Haz.pipes[pipe2id].set_p1(Haz.pipes[pipe1id].p2 - pressureDrop1);
 	if (type == "Bull Tee" || type == "Side Tee")
-		Haz.pipes[pipe3id].set_p1(Haz.pipes[pipe1id].p2 - pressureDrop2);
+		Haz.pipes[pipe3id].set_p1(Haz.pipes[pipe1id].p2 - pressureDrop2);*/
 
 	//calculate and assign the flow (mass flow rate) at the beginning of the 
 	//next pipes based on the mass flow rate at the end of the previous
@@ -101,19 +101,19 @@ Coupling: 5 * ID
 ----------------------------------------
 Standard eq. length of 90s is halved per request of customer 21/12/2009
 */
-int node::set_equivalent_length(quantity<length> internal_diameter, std::string Type)
+int node::set_equivalent_length(double internal_diameter, std::string Type)
 {
 	if(Type == "Elbow")
 	{
 		if (connection_type == 1)
 		{
 			equivalent_length_1 = 0.5 * 30.0 * internal_diameter;
-			equivalent_length_2 = 0 * meters;
+			equivalent_length_2 = 0;// *meters;
 		}
 		else if (connection_type == 2)
 		{
 			equivalent_length_1 = 0.5 * 16.0 * internal_diameter;
-			equivalent_length_2 = 0 * meters;
+			equivalent_length_2 = 0;// *meters;
 		}
 	}
 	else if (Type == "Bull Tee")
@@ -149,8 +149,20 @@ int node::set_equivalent_length(quantity<length> internal_diameter, std::string 
 	}
 	else
 	{
-		equivalent_length_1 = 0.0 * meters;
-		equivalent_length_2 = 0.0 * meters;
+		equivalent_length_1 = 0.0;// *meters;
+		equivalent_length_2 = 0.0;// *meters;
 	}
 	
+}
+
+/**
+calculating the mass flow rate from nozzle
+*/
+double node::calculate_mass_flow_rate(double sTime)
+{
+	double MFR;
+	double inergenDensityat68F;
+	inergenDensityat68F = 1.416;// *kilogram_per_cubic_meter;
+	MFR = inergenDensityat68F * required_gas_quantity;// / sTime;
+	return MFR; //kilogram per second
 }

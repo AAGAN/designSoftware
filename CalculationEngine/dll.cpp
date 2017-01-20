@@ -4,7 +4,6 @@
 #include <vector>
 #include "enclosure.h"
 #include "hazard.h"
-#include "boostheader.h"
 #include "node.h"
 #include "pipe.h"
 
@@ -29,15 +28,15 @@ std::vector<vData> pipe::valveData;
 calculate_density is a global function that calculates the density of an inert gas (with specified heat_capacity_ratio)
 based on the stagnation density and stagnation pressure at any static pressure. 
 */
-quantity<mass_density> calculate_density
+double calculate_density
 (
-	quantity<mass_density> stagnation_density,
-	quantity<pressure> stagnation_pressure,
-	quantity<pressure> static_pressure,
-	quantity<dimensionless> heat_capacity_ratio
+	double stagnation_density,
+	double stagnation_pressure,
+	double static_pressure,
+	double heat_capacity_ratio
 )
 {
-	quantity<mass_density> static_density;
+	double static_density;
 	static_density = 
 		stagnation_density 
 		* pow(
@@ -57,16 +56,16 @@ int __stdcall add_hazard
 	int agent
 )
 {
-	quantity<time> discharge_time;
-	discharge_time = discharge_time.from_value(dischargeTime);
+	double discharge_time;
+	discharge_time = dischargeTime;
 	if (hazard_exists(ID))
 	{
 		for (auto& haz : hazards)
 		{
 			if (haz.get_id() == ID)
 			{
-				quantity<volume> cyl_vol;
-				cyl_vol.from_value(cylinder_volume);
+				double cyl_vol;
+				cyl_vol = cylinder_volume;
 				haz.set_number_cylinders(num_cylinders);
 				haz.set_cylinder_volume(cyl_vol);
 				haz.set_discharge_time(discharge_time);
@@ -80,7 +79,7 @@ int __stdcall add_hazard
 		(
 			ID,
 			std::to_string(ID),
-			cylinder_volume * cubic_meters,
+			cylinder_volume,
 			discharge_time
 		);
 		hazards.push_back(Haz);
@@ -147,7 +146,7 @@ int __stdcall add_enclosure
 	int nozzleQuantity
 )
 {
-	quantity<time> disTime = 60 * seconds;
+	double disTime = 60.0; // *seconds;
 	for (auto& Haz : hazards)
 	{
 		if (Haz.get_id() == hazardID)
@@ -162,20 +161,20 @@ int __stdcall add_enclosure
 		hazardID,
 		ID,
 		std::to_string(ID),
-		min_temperature * kelvins,
-		max_temperature * kelvins,
-		max_wall_strength * pascals,
+		min_temperature,// * kelvins,
+		max_temperature, // * kelvins,
+		max_wall_strength, // * pascals,
 		minimum_design_concentration,
-		min_temperature * kelvins,
+		min_temperature, // * kelvins,
 		vent_method,
-		altitude * meters,
+		altitude, // * meters,
 		altitude_correction_factor,
 		nozzle_option,
-		Length * meters,
-		Width * meters,
-		Height * meters,
-		gross_volume * cubic_meters,
-		restriction_volume * cubic_meters, //!< This can be negative or positive
+		Length, // * meters,
+		Width, // * meters,
+		Height, // * meters,
+		gross_volume, // * cubic_meters,
+		restriction_volume, // * cubic_meters, //!< This can be negative or positive
 		nozzleQuantity,
 		disTime,
 		"A", //fuel class, not used
@@ -312,8 +311,8 @@ bool __stdcall get_enclosure_info
 					out->hazard_id = hazard_id;
 					out->id = enclosure_id;
 					
-					out->gross_volume = enc.get_gross_volume().value();
-					out->net_volume = enc.get_net_volume().value();
+					out->gross_volume = enc.get_gross_volume();// .value();
+					out->net_volume = enc.get_net_volume();// .value();
 					
 					out->flooding_factor = enc.getFloodingFactor();
 					out->supplied_flooding_factor = enc.get_supplied_flooding_factor();
@@ -325,12 +324,12 @@ bool __stdcall get_enclosure_info
 					out->o2_concentration = enc.get_o2_concentration();
 					out->co2_concentration = enc.get_co2_concentration();
 					
-					out->estimated_gas_flow = enc.get_estimated_flow_rate().value();
+					out->estimated_gas_flow = enc.get_estimated_flow_rate();// .value();
 					
-					out->minimum_volume_agent_required = enc.get_vol_agent_required().value();
-					out->supplied_gas_quantity = enc.get_supplied_vol_agent().value();
-					out->supplied_gas_quantity_95 = enc.get_supplied_vol_agent().value()*0.95;
-					out->supplied_gas_quantity_60 = enc.get_supplied_vol_agent().value()*0.6;
+					out->minimum_volume_agent_required = enc.get_vol_agent_required();// .value();
+					out->supplied_gas_quantity = enc.get_supplied_vol_agent();// .value();
+					out->supplied_gas_quantity_95 = 0.95 * enc.get_supplied_vol_agent();// .value();
+					out->supplied_gas_quantity_60 = 0.6 * enc.get_supplied_vol_agent();// .value();
 					
 					return true;
 				}
@@ -350,9 +349,9 @@ bool __stdcall get_hazard_info
 		if (haz.get_id() == hazard_id)
 		{
             out->id = hazard_id;
-            out->minimum_total_agent_required = haz.get_min_total_agent_required().value();
+			out->minimum_total_agent_required = haz.get_min_total_agent_required();// .value();
             out->number_containers = haz.get_number_containers();
-            out->supplied_agent_volume = haz.get_supplied_agent_volume().value();
+			out->supplied_agent_volume = haz.get_supplied_agent_volume();// .value();
 			global_cylinder_quantity = haz.get_number_containers();
             return true;
 		}
@@ -374,7 +373,7 @@ int __stdcall get_pipe_info
 			for (auto& pp : haz.pipes)
 				if (pipe_id == pp.get_id())
 				{
-					out->length = pp.get_length().value();
+					out->length = pp.get_length();// .value();
 					out->pipe_id = pp.get_id();
 					out->hazard_id = hazard_id;
 					return 0;
@@ -396,7 +395,7 @@ int __stdcall get_node_info
 			for (auto& nd : haz.nodes)
 				if (node_id == nd.get_id())
 				{
-					out->orifice_diameter = nd.get_orifice_diameter().value();
+					out->orifice_diameter = nd.get_orifice_diameter();// .value();
 					out->node_id = nd.get_id();
 					out->hazard_id = hazard_id;
 					return 0;
@@ -420,8 +419,8 @@ int __stdcall add_node(
 	double supplied_gas_quantity
 )
 {
-	quantity<length> x_coord, y_coord, z_coord, orfice_diam;
-	quantity<volume> requiredGasQuantity, suppliedGasQuantity;
+	double x_coord, y_coord, z_coord, orifice_diam;
+	double requiredGasQuantity, suppliedGasQuantity;
 	node nd
 	(
 		node_id,
@@ -429,14 +428,14 @@ int __stdcall add_node(
 		pipe1_id,
 		pipe2_id,
 		pipe3_id,
-		x_coord.from_value(x_coordinate),
-		y_coord.from_value(y_coordinate),
-		z_coord.from_value(z_coordinate),
-		requiredGasQuantity.from_value(required_gas_quantity),
-		suppliedGasQuantity.from_value(supplied_gas_quantity)
+		x_coord = x_coordinate,
+		y_coord = y_coordinate,
+		z_coord = z_coordinate,
+		requiredGasQuantity = required_gas_quantity,
+		suppliedGasQuantity = supplied_gas_quantity
 	);
-	
-	if (type == 0) nd.set_orifice_diameter(orfice_diam.from_value(orifice_diameter));
+	orifice_diam = orifice_diameter;
+	if (type == 0) nd.set_orifice_diameter(orifice_diam);
 	if (node_exist(node_id, hazard_id))
 		remove_node(node_id, hazard_id);
 	for (auto& haz : hazards)
@@ -468,11 +467,11 @@ int __stdcall add_cylinder
 		0,
 		0,
 		0,
-		x_coordinate * meters,
-		y_coordinate * meters,
-		z_coordinate * meters,
-		0.0 * cubic_meter,
-		0.0 * cubic_meters
+		x_coordinate, // * meters,
+		y_coordinate, // * meters,
+		z_coordinate, // * meters,
+		0.0, // * cubic_meter,
+		0.0 // * cubic_meters
 	);
 	for (auto& haz : hazards)
 		if (haz.get_id() == hazard_id)
@@ -498,13 +497,13 @@ int __stdcall add_pipe_size_data
 	pipe::addPipeSizeData
 	(
 		schedule, 
-		nominal_size * meters, 
-		thickness * meters, 
-		internal_diameter * meters, 
+		nominal_size, // * meters, 
+		thickness, // * meters, 
+		internal_diameter, // * meters, 
 		friction_factor,
-		maximum_pressure_rating * pascals,
+		maximum_pressure_rating, // * pascals,
 		type,
-		mass_per_unit_Length * kilogram_per_meters
+		mass_per_unit_Length // * kilogram_per_meters
 	);
 	return 0;
 }
@@ -520,9 +519,9 @@ int __stdcall add_valve_size_data
 	if (Type == 1) valve_type = "selector";
 	pipe::addValveSizeData
 	(
-		nominal_size * meters, 
+		nominal_size, // * meters, 
 		valve_type, 
-		equivalent_length*meters
+		equivalent_length //*meters
 	);
 	return 0;
 }
@@ -568,8 +567,7 @@ int __stdcall add_pipe
 	double diameter
 )
 {
-	quantity<length> diam1, diam2;
-	pipe pp(pipe_id, type, node1_id, node2_id, diam1.from_value(diameter),diam2.from_value(diameter));
+	pipe pp(pipe_id, type, node1_id, node2_id, diameter, diameter);
 	if (pipe_exist(pipe_id, hazard_id))
 		remove_pipe(pipe_id, hazard_id);
 	for (auto& haz : hazards)

@@ -1,7 +1,6 @@
 #pragma once
 #include <hazard.h>
 #include <string>
-#include "boostheader.h"
 #include <cmath>
 #include <vector>
 
@@ -11,14 +10,14 @@ pipe data structure to store the information related to pipes
 struct pData
 {
 	int schedule;
-	quantity<length> nominalSize;
-	quantity<length> thickness;
-	quantity<length> internalDiameter;
-	quantity<dimensionless> frictionFactor;
-	quantity<pressure> maximumPressureRating;
+	double nominalSize;
+	double thickness;
+	double internalDiameter;
+	double frictionFactor;
+	double maximumPressureRating;
 	//quantity<pressure> minimumPressureRating;//should be removed!
 	int type; //Threaded = 1, Welded = 2
-	quantity<mass_per_unit_length_unit> massPerUnitLength;
+	double massPerUnitLength;
 };
 
 /**
@@ -26,9 +25,9 @@ valve data structure to store the information related to valves
 */
 struct vData
 {
-	quantity<length> nominalSize;
+	double nominalSize;
 	std::string type;
-	quantity<length> equivalentLength;
+	double equivalentLength;
 };
 
 /**
@@ -51,17 +50,17 @@ protected:
 
 	
 
-	quantity<pressure> maxPressure;
-	quantity<pressure> minPressure;
+	double maxPressure;
+	double minPressure;
 
-	quantity<length> pipe_length;
+	double pipe_length;
 	
-	quantity<length> diameter1;
-	quantity<length> diameter2;
+	double diameter1;
+	double diameter2;
 
-	quantity<mass_flow_rate_unit> massFlowRate;
+	double massFlowRate;
 
-	quantity<length> internal_diameter;
+	double internal_diameter;
 	
 public:
 	pipe();
@@ -72,8 +71,8 @@ public:
 
 	int index;
 
-	quantity<pressure> p1;
-	quantity<pressure> p2;
+	double p1;
+	double p2;
 
 	pipe
 	(
@@ -81,15 +80,15 @@ public:
 		int Type,
 		int Node1id,
 		int Node2id,
-		quantity<length> Diameter1,
-		quantity<length> Diameter2
+		double Diameter1,
+		double Diameter2
 	);
 
 	int get_id() { return id; }
 	void set_id(int pipe_Id) { id = pipe_Id; }
 
-	quantity<length> get_length() { return pipe_length; }
-	void set_pipe_length(quantity<length> lng) { pipe_length = lng; }
+	double get_length() { return pipe_length; }
+	void set_pipe_length(double lng) { pipe_length = lng; }
 	
 	void add_node1(int nd1) { node1 = nd1; }
 	int get_node1() { return node1; }
@@ -99,32 +98,32 @@ public:
 	std::string get_type() { return type; }
 
 	int calculate_pressure_drop();
-	void set_p1(quantity<pressure> p) { p1 = p; }
-	void set_p2(quantity<pressure> p) { p2 = p; }
+	void set_p1(double p) { p1 = p; }
+	void set_p2(double p) { p2 = p; }
 
 	static int addPipeSizeData
 	(
 		int schedule,
-		quantity<length> nominalSize,
-		quantity<length> thickness,
-		quantity<length> internalDiameter,
-		quantity<dimensionless> ff,
-		quantity<pressure> maxP,
+		double nominalSize,
+		double thickness,
+		double internalDiameter,
+		double ff,
+		double maxP,
 		int Type,
-		quantity<mass_per_unit_length_unit> mass_per_unit_Length
+		double mass_per_unit_Length
 	);
 
 	static std::vector<pData> pipeData;
 
 	static int addValveSizeData
 	(
-		quantity<length> nominal_size,
+		double nominal_size,
 		std::string type,
-		quantity<length> equivalent_length
+		double equivalent_length
 	);
 
 	static std::vector<vData> valveData;
 
-	mass_flow_rate get_min_mass_flow_rate();
-	mass_flow_rate get_max_mass_flow_rate();
+	double get_min_mass_flow_rate();
+	double get_max_mass_flow_rate();
 };

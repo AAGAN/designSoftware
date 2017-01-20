@@ -21,9 +21,6 @@
     <ClInclude Include="node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="boostheader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="enclosure.h">
       <Filter>Header Files</Filter>
     </ClInclude>

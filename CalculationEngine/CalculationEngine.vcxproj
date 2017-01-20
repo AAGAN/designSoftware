@@ -140,7 +140,6 @@
   <ItemGroup>
     <ClInclude Include="dll.h" />
     <ClInclude Include="enclosure.h" />
-    <ClInclude Include="boostheader.h" />
     <ClInclude Include="node.h" />
     <ClInclude Include="pipe.h" />
     <ClInclude Include="hazard.h" />

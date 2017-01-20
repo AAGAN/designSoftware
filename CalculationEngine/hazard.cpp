@@ -14,8 +14,8 @@ hazard::hazard(
 	int ID,
 	std::string Name,
 	//std::vector<enclosure>& Enclosures,
-	quantity<volume> bottleVol = 22.3 * cubic_meters,
-	quantity<time> dischargeTime = 60 * seconds
+	double bottleVol = 22.3,// * cubic_meters,
+	double dischargeTime = 60// * seconds
 )
 	:
 	name(Name),
@@ -24,10 +24,10 @@ hazard::hazard(
 	//enclosures(Enclosures),
 	discharge_time(dischargeTime),
 	numContainers(0),
-	minTotalInergenVolReq(0 * cubic_meters),
-	suppliedInergenVol(0 * cubic_meters),
+	minTotalInergenVolReq(0),// * cubic_meters),
+	suppliedInergenVol(0),// * cubic_meters),
 	numEnclosures(0),
-	estimated_system_flow_rate(0 * cubic_meters)
+	estimated_system_flow_rate(0)// * cubic_meters)
 {
 	
 }
@@ -59,9 +59,9 @@ hazard::~hazard()
 /**
 Step 7 of the system manual
 */
-quantity<volume> hazard::calcMinTotalInergenVol()
+double hazard::calcMinTotalInergenVol()
 {
-	minTotalInergenVolReq = 0 * cubic_meters;
+	minTotalInergenVolReq = 0;// *cubic_meters;
 	if (enclosures.size() != numEnclosures)
 		std::cout << "Error calculating totalInergenReq" << std::endl;
 	for (auto& enc : enclosures)
@@ -75,8 +75,8 @@ void hazard::assign_o2_co2_concentration()
 {
 	for (auto& enc : enclosures)
 	{
-		quantity<dimensionless> o2_conc = 0.209*(100 - enc.get_supplied_design_concentration());
-		quantity<dimensionless> co2_conc = 0.08 * enc.get_supplied_design_concentration();
+		double o2_conc = 0.209*(100 - enc.get_supplied_design_concentration());
+		double co2_conc = 0.08 * enc.get_supplied_design_concentration();
 		enc.set_o2_concentration(o2_conc);
 		enc.set_co2_concentration(co2_conc);
 	}
@@ -164,12 +164,12 @@ void hazard::set_pipe_length()
 {
 	for (auto& pp : pipes)
 	{
-		quantity<length> l;
-		quantity<length> x_diff = nodes[pp.get_node1()].get_x() - nodes[pp.get_node2()].get_x();
-		quantity<length> y_diff = nodes[pp.get_node1()].get_y() - nodes[pp.get_node2()].get_y();;
-		quantity<length> z_diff = nodes[pp.get_node1()].get_z() - nodes[pp.get_node2()].get_z();;
-		double ll = sqrt(pow(x_diff.value(), 2.0) + pow(y_diff.value(), 2.0) + pow(z_diff.value(), 2.0));
-		l = l.from_value(ll);
+		double l;
+		double x_diff = nodes[pp.get_node1()].get_x() - nodes[pp.get_node2()].get_x();
+		double y_diff = nodes[pp.get_node1()].get_y() - nodes[pp.get_node2()].get_y();;
+		double z_diff = nodes[pp.get_node1()].get_z() - nodes[pp.get_node2()].get_z();;
+		double ll = sqrt(pow(x_diff, 2.0) + pow(y_diff, 2.0) + pow(z_diff, 2.0));
+		l = ll;
 		pp.set_pipe_length(l);
 	}
 }
@@ -196,7 +196,7 @@ void hazard::addEnclosure(enclosure enc)
 /**
 Step No.9 of the systems manual for inergen 300 bar
 */
-quantity<volume> hazard::calcActualInergenVol()
+double hazard::calcActualInergenVol()
 {
 	suppliedInergenVol = (double)numContainers * containerVolSize;
 	return suppliedInergenVol;
@@ -208,11 +208,11 @@ Step No. 10 of the system manual
 */
 void hazard::assign_supplied_inergen_vol()
 {	
-	quantity<volume> totalInergenVol = 0 * cubic_meter;
+	double totalInergenVol = 0;// *cubic_meter;
 	for (auto& enc : enclosures) totalInergenVol += enc.get_vol_agent_required();
 	for (auto& enc : enclosures)
 	{
-		quantity<dimensionless> volFraction;
+		double volFraction;
 		volFraction = enc.get_vol_agent_required()/totalInergenVol;
 		enc.set_supplied_vol_agent(volFraction*suppliedInergenVol);
 	}
@@ -230,7 +230,7 @@ void hazard::assign_flooding_factor()
 {
 	for (auto& enc : enclosures)
 	{
-		quantity<dimensionless> suppliedFloodingFactor = 0;
+		double suppliedFloodingFactor = 0;
 		suppliedFloodingFactor = enc.get_supplied_vol_agent()
 			/enc.get_altitude_correction_factor()
 			/enc.get_net_volume();
@@ -253,7 +253,7 @@ void hazard::check_design_concentration(
 	
 	for (auto& enc : enclosures)
 	{
-		quantity<dimensionless> dc;
+		double dc;
 		//Steps 12 and 13
 		dc = enc.calc_concentration(enc.get_max_temperature(), enc.get_supplied_flooding_factor());
 		enc.set_supplied_design_concentration(dc);
@@ -285,9 +285,9 @@ Step 15 of the system manual
 */
 void hazard::calc_estimated_system_flow_rate()
 {
-	if (discharge_time == 120 * seconds)
+	if (discharge_time == 120)// * seconds)
 		estimated_system_flow_rate = suppliedInergenVol * 0.95;
-	else if (discharge_time == 60 * seconds)
+	else if (discharge_time == 60)// * seconds)
 		estimated_system_flow_rate = suppliedInergenVol * 0.95 * 2.0;
 	else
 		std::cout << "System manual only provides a method for estimated flow rate if the discharge time is 60 or 120 seconds but the discharge time is: " << discharge_time << std::endl;
@@ -299,7 +299,7 @@ void hazard::assign_gas_flow_rate()
 {
 	for (auto& enc : enclosures)
 	{
-		if (discharge_time == 120 * seconds)
+		if (discharge_time == 120)// * seconds)
 		{
 			enc.set_estimated_flow_rate(enc.get_supplied_vol_agent()*0.95*2.0);
 		}
@@ -326,10 +326,10 @@ void hazard::assign_nozzle_quantity()
 		else if (enc.get_nozzle_option())
 		{
 			int nozQ;
-			nozQ = (int)ceil(ceil(enc.getLength().value() / 9.75)*ceil(enc.getWidth().value() / 9.75));
+			nozQ = (int)ceil(ceil(enc.getLength() / 9.75)*ceil(enc.getWidth() / 9.75));
 			enc.set_nozzle_quantity(nozQ);
-			if (enc.get_net_volume() > 580.11*cubic_meters)
-				nozQ = (int)ceil(enc.get_net_volume() / (580.11*cubic_meters)); //max volume coverage is 95.1sq.m*6.1m = 508.11cu.m
+			if (enc.get_net_volume() > 580.11)//*cubic_meters)
+				nozQ = (int)ceil(enc.get_net_volume() / (580.11));//*cubic_meters)); //max volume coverage is 95.1sq.m*6.1m = 508.11cu.m
 			if (nozQ > enc.get_nozzle_quantity())
 			{
 				enc.set_nozzle_quantity(nozQ);

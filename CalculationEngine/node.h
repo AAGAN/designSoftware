@@ -1,7 +1,6 @@
 #pragma once
 #include <hazard.h>
 #include <string>
-#include "boostheader.h"
 #include <vector>
 
 /**
@@ -31,16 +30,16 @@ protected:
 	int pipe2;
 	int pipe3;
 	
-	quantity<length> x; //!< X coordinate
-	quantity<length> y; //!< Y coordinate
-	quantity<length> z; //!< Z coordinate
+	double x; //!< X coordinate
+	double y; //!< Y coordinate
+	double z; //!< Z coordinate
 
-	quantity<length> orifice_diameter; //!< only for nozzles
-	quantity<volume> required_gas_quantity; //!< only for nozzles
-	quantity<volume> supplied_gas_quantity; //!< only for nozzles
+	double orifice_diameter; //!< only for nozzles
+	double required_gas_quantity; //!< only for nozzles
+	double supplied_gas_quantity; //!< only for nozzles
 
-	quantity<pressure> pressureDrop1; //!< pressure drop across the node (if tee, pressure drop across input and first side)
-	quantity<pressure> pressureDrop2; //!< pressure drop across the node (if not tee then 0, if tee, pressure drop across input and second side or through)
+	double pressureDrop1; //!< pressure drop across the node (if tee, pressure drop across input and first side)
+	double pressureDrop2; //!< pressure drop across the node (if not tee then 0, if tee, pressure drop across input and second side or through)
 
 public:
 	node();
@@ -59,27 +58,27 @@ public:
 		int Pipe1_id,
 		int Pipe2_id,
 		int Pipe3_id,
-		quantity<length> x_coord,
-		quantity<length> y_coord,
-		quantity<length> z_coord,
-		quantity<volume> suppliedGasQuantity,
-		quantity<volume> requiredGasQuantity
+		double x_coord,
+		double y_coord,
+		double z_coord,
+		double suppliedGasQuantity,
+		double requiredGasQuantity
 	);
 
 	int get_id() { return id; }
 	void set_id(int node_id) { id = node_id; }
 
-	quantity<length> get_x() { return x; }
-	void set_x(quantity<length> x_coordinate) { x = x_coordinate; }
+	double get_x() { return x; }
+	void set_x(double x_coordinate) { x = x_coordinate; }
 
-	quantity<length> get_y() { return y; }
-	void set_y(quantity<length> y_coordinate) { y = y_coordinate; }
+	double get_y() { return y; }
+	void set_y(double y_coordinate) { y = y_coordinate; }
 
-	quantity<length> get_z() { return z; }
-	void set_z(quantity<length> z_coordinate) { z = z_coordinate; }
+	double get_z() { return z; }
+	void set_z(double z_coordinate) { z = z_coordinate; }
 
-	quantity<length> get_orifice_diameter() { return orifice_diameter; }
-	void set_orifice_diameter(quantity<length> diam) { orifice_diameter = diam; }
+	double get_orifice_diameter() { return orifice_diameter; }
+	void set_orifice_diameter(double diam) { orifice_diameter = diam; }
 
 	void add_pipe1(int pp1) { pipe1 = pp1; }
 	int get_pipe1() { return pipe1; }
@@ -92,8 +91,10 @@ public:
 
 	int update_hydraulics(hazard& Haz);
 
-	quantity<length> equivalent_length_1; //!<equivalent length in 1st direction
-	quantity<length> equivalent_length_2; //!<equivalent length in 2nd direction (only for tees)
+	double equivalent_length_1; //!<equivalent length in 1st direction
+	double equivalent_length_2; //!<equivalent length in 2nd direction (only for tees)
 
-	int set_equivalent_length(quantity<length>, std::string);
+	int set_equivalent_length(double, std::string);
+
+	double calculate_mass_flow_rate(double sTime);
 };

@@ -19,25 +19,25 @@ enclosure::enclosure(
 	int hazID = 1,
 	int ID = 1,
 	std::string name = "Enclosure 1",
-	quantity<temperature> minTemp = 293.15 * kelvin, 
-	quantity<temperature> maxTemp = 295.15 * kelvin, 
-	quantity<pressure> maxStrength = 1.0e6 * pascals, 
-	quantity<dimensionless> concentration = -1, //-1 if not provided, if this value is provided, it overrides the calculation for minimum design concentration
-	quantity<temperature> temp = 294.26 * kelvin, //normal ambient temperature
+	double minTemp = 293.15,// * kelvin,
+	double maxTemp = 295.15,// * kelvin,
+	double maxStrength = 1.0e6,// * pascals,
+	double concentration = -1, //-1 if not provided, if this value is provided, it overrides the calculation for minimum design concentration
+	double temp = 294.26,// * kelvin, //normal ambient temperature
 	std::string VentCalcMethod = "Ansul", //Ansul or FIA
-	quantity<length> Altitude = 0 * meters, 
-	quantity<dimensionless> alt_cor_factor = 1.0, //altitude correction factor
+	double Altitude = 0 ,//* meters,
+	double alt_cor_factor = 1.0, //altitude correction factor
 	bool nozOption = true, // true for "quantity" or false for "fixed"
-	quantity<length> Length = 10 * meters, // just to initialize the dimensions, these dimensions are not of any significant importance
-	quantity<length> Width = 10 * meters, 
-	quantity<length> Height = 15 * meters, 
-	quantity<volume> grossVol = 0 * cubic_meters, 
-	quantity<volume> RestrictionVol= 0 * cubic_meters,
+	double Length = 10 ,//* meters, // just to initialize the dimensions, these dimensions are not of any significant importance
+	double Width = 10 ,//* meters,
+	double Height = 15 ,//* meters,
+	double grossVol = 0 ,//* cubic_meters,
+	double RestrictionVol= 0 ,//* cubic_meters,
 	int numNozzles = 1,
-	quantity<time> dischargeTime = 60 * seconds,
+	double dischargeTime = 60 ,//* seconds,
 	std::string fuelClass = "A", //Class ("A" or "B" or "C")
 	std::string fuelType = "", //only for Class "B" Type ("commercial grade heptane" or "other class B fuels" or "only manual actuation")
-	quantity<dimensionless> cupBurnerValue = 34.2 //For Class "B" Type "only manual actuation" the cup_burber_value should be specified
+	double cupBurnerValue = 34.2 //For Class "B" Type "only manual actuation" the cup_burber_value should be specified
 	
 )
 :
@@ -50,7 +50,7 @@ cup_burner(cupBurnerValue), nozzle_quantity(numNozzles), altitude_correction_fac
 {
 	temperatures = normal_temperature;
 
-	gross_volume = (grossVol.value() != 0) ? grossVol : lengths*width*height;
+	gross_volume = (grossVol != 0) ? grossVol : lengths*width*height;
 	
 	net_volume = gross_volume + volume_restrictions;
 
@@ -67,12 +67,12 @@ Calculates the minimum amount of inergen required to achieve the min_design_conc
 this function updates the value of the flooding_factor in addition to vol_agent_required
 this is the volume of the inergen at 21C and 101300Ps 
 */
-quantity<volume> enclosure::get_vol_agent_required()
+double enclosure::get_vol_agent_required()
 {
 	if (NFPA2001)
 	{
 		// NFPA2001 page 85 , below Table A.5.5.2(f) IG-541 Total flooding quantity (SI Units)
-		double specificVolume = 0.65799 + 0.00239 * (min_temperature.value() - 273.15);
+		double specificVolume = 0.65799 + 0.00239 * (min_temperature - 273.15);
 		flooding_factor = log(100.0 / (100.0 - min_design_concentration))*(0.707 / specificVolume);
 	}
 	else
@@ -88,10 +88,10 @@ quantity<volume> enclosure::get_vol_agent_required()
 calculates and returns the concentration for Step 12 and 14 from a temperature and a flooding factor
 this is from the equation in NFPA2001 page 85 Table A.5.5.2 (f)
 */
-quantity<dimensionless> enclosure::calc_concentration(quantity<temperature> t, quantity<dimensionless> floodingfactor)
+double enclosure::calc_concentration(double t, double floodingfactor)
 {
-	quantity<dimensionless> dc;
-	dc = 100 - 100 * exp((-1.0) * floodingfactor * ( 0.65799 + 0.00239 * (t.value() - 273.15 )) / 0.707);
+	double dc;
+	dc = 100 - 100 * exp((-1.0) * floodingfactor * ( 0.65799 + 0.00239 * (t - 273.15 )) / 0.707);
 	return dc;
 }
 
@@ -177,7 +177,7 @@ altitude_meters  correction_factor
 -500.0           1.065
 500.0            0.9425
 */
-quantity<dimensionless> enclosure::get_altitude_correction_factor(quantity<length> Altitude)
+double enclosure::get_altitude_correction_factor(double Altitude)
 {
 	return altitude_correction_factor;
 }
