@@ -19,13 +19,15 @@ node::node
 	double y_coord,
 	double z_coord,
 	double suppliedGasQuantity,
-	double requiredGasQuantity
+	double requiredGasQuantity,
+	int connectionType
 )
 	:id(Id), pipe1id(Pipe1_id), 
 	pipe2id(Pipe2_id),pipe3id(Pipe3_id),
 	x(x_coord),y(y_coord),z(z_coord),
 	required_gas_quantity(requiredGasQuantity),
-	supplied_gas_quantity(suppliedGasQuantity)
+	supplied_gas_quantity(suppliedGasQuantity),
+	connection_type(connectionType)
 {
 	switch (Type)
 	{

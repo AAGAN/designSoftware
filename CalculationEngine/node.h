@@ -62,7 +62,8 @@ public:
 		double y_coord,
 		double z_coord,
 		double suppliedGasQuantity,
-		double requiredGasQuantity
+		double requiredGasQuantity,
+		int connectionType
 	);
 
 	int get_id() { return id; }

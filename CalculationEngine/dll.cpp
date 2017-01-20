@@ -416,11 +416,10 @@ int __stdcall add_node(
 	double orifice_diameter,
 	int enclosure_id,
 	double required_gas_quantity,
-	double supplied_gas_quantity
+	double supplied_gas_quantity,
+	int connection_type
 )
 {
-	double x_coord, y_coord, z_coord, orifice_diam;
-	double requiredGasQuantity, suppliedGasQuantity;
 	node nd
 	(
 		node_id,
@@ -428,14 +427,14 @@ int __stdcall add_node(
 		pipe1_id,
 		pipe2_id,
 		pipe3_id,
-		x_coord = x_coordinate,
-		y_coord = y_coordinate,
-		z_coord = z_coordinate,
-		requiredGasQuantity = required_gas_quantity,
-		suppliedGasQuantity = supplied_gas_quantity
+		x_coordinate,
+		y_coordinate,
+		z_coordinate,
+		required_gas_quantity,
+		supplied_gas_quantity,
+		connection_type
 	);
-	orifice_diam = orifice_diameter;
-	if (type == 0) nd.set_orifice_diameter(orifice_diam);
+	if (type == 0) nd.set_orifice_diameter(orifice_diameter);
 	if (node_exist(node_id, hazard_id))
 		remove_node(node_id, hazard_id);
 	for (auto& haz : hazards)
@@ -471,7 +470,8 @@ int __stdcall add_cylinder
 		y_coordinate, // * meters,
 		z_coordinate, // * meters,
 		0.0, // * cubic_meter,
-		0.0 // * cubic_meters
+		0.0, // * cubic_meters
+		1
 	);
 	for (auto& haz : hazards)
 		if (haz.get_id() == hazard_id)
@@ -564,10 +564,11 @@ int __stdcall add_pipe
 	int type, 
 	int node1_id, 
 	int node2_id, 
-	double diameter
+	double diameter,
+	int connection_type
 )
 {
-	pipe pp(pipe_id, type, node1_id, node2_id, diameter, diameter);
+	pipe pp(pipe_id, type, node1_id, node2_id, diameter, diameter, connection_type);
 	if (pipe_exist(pipe_id, hazard_id))
 		remove_pipe(pipe_id, hazard_id);
 	for (auto& haz : hazards)

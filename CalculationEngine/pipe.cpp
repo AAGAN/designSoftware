@@ -9,8 +9,17 @@ pipe::~pipe()
 {
 }
 
-pipe::pipe(int Id, int Type, int Node1id, int Node2id, double Diameter1, double Diameter2)
-:id(Id),node1id(Node1id),node2id(Node2id),diameter1(Diameter1),diameter2(Diameter2)
+pipe::pipe
+(
+	int Id, 
+	int Type, 
+	int Node1id, 
+	int Node2id, 
+	double Diameter1, 
+	double Diameter2,
+	int connectionType
+)
+:id(Id),node1id(Node1id),node2id(Node2id),diameter1(Diameter1),diameter2(Diameter2),connection_type(connectionType)
 {
 	switch (Type)
 	{

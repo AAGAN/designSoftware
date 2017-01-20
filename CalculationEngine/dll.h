@@ -46,6 +46,7 @@ struct PIPE
 	int pipe_id;
 	int hazard_id;
 	double length;
+	int connection_type;
 };
 
 /**
@@ -56,6 +57,7 @@ struct NODE
 	int node_id;
 	int hazard_id;
 	double orifice_diameter;
+	int connection_type;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -209,7 +211,8 @@ extern "C" int __stdcall add_node
 	double orifice_diameter = 0.0, //!< if the node is a nozzle (type = 0) in meters
 	int enclosure_id = 0, //!< if the node is a nozzle the id of the associated enclosure
 	double required_gas_quantity = 0.0, //!< if the node is a nozzle, this is the required gas quantity of enclosure divided by number of nozzles in that enclosure
-	double supplied_gas_quantity = 0.0 //!< if the node is a nozzle, this is the supplied gas quantity of enclosure divided by number of nozzles in that enclosure
+	double supplied_gas_quantity = 0.0, //!< if the node is a nozzle, this is the supplied gas quantity of enclosure divided by number of nozzles in that enclosure
+	int connection_type = 1 //threaded = 1, welded = 2
 );
 
 /** removes a node from a hazard*/
@@ -242,7 +245,8 @@ extern "C" int __stdcall add_pipe
 	int type = 0, //0,1 or 2
 	int node1_id = 0,
 	int node2_id = 0,
-	double diameter1 = 0.0 //!< diameter of the pipe
+	double diameter1 = 0.0, //!< diameter of the pipe
+	int connection_type = 1 //threaded = 1, welded = 2
 );
 
 /** removes a pipe from a hazard*/

@@ -44,6 +44,7 @@ protected:
 	int id;
 
 	std::string type;
+	int connection_type; // threaded = 1, welded = 2
 
 	int node1;
 	int node2;
@@ -81,7 +82,8 @@ public:
 		int Node1id,
 		int Node2id,
 		double Diameter1,
-		double Diameter2
+		double Diameter2,
+		int connectionType
 	);
 
 	int get_id() { return id; }
