@@ -46,6 +46,8 @@ private:
 	double estimated_system_flow_rate;
 	double discharge_time;
 	
+	//-----------------------------------------------------------------------------------
+	// functions for the gas quantity calculations
 	void assign_supplied_inergen_vol(); //!< Assigns the volume calculated from cylinders
 	void assign_flooding_factor();
 	void check_design_concentration();
@@ -59,5 +61,7 @@ private:
 	void output_data(std::string filename);
 	void set_pipe_length();
 	
-	
+	//----------------------------------------------------------------------------------
+	// functions for the hydraulic calculations
+	void assign_initial_flow_rates(double sTime);
 };

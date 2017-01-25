@@ -93,12 +93,12 @@ void hazard::output_data(std::string filename)
 	outputfile << "Pipes: " << std::endl;
 	outputfile << "ID , type , node1 ID , node2ID , node1 , node2, length" << std::endl;
 	for (auto& pp : pipes)
-		outputfile << pp.get_id() << "," << pp.get_type() << "," << pp.node1id << "," << pp.node2id << "," << pp.get_node1() << "," << pp.get_node2() << "," << pp.get_length() << std::endl;
+		outputfile << pp.get_id() << "," << pp.get_type() << "," << pp.node1id << "," << pp.node2id << "," << pp.get_node1_index() << "," << pp.get_node2_index() << "," << pp.get_length() << std::endl;
 	outputfile << "Nodes: " << std::endl;
 	outputfile << " ID , type ,  x , y , z ,pipe1 ID , pipe2 ID , pipe3 ID , pipe1 , pipe2 , pipe3 " << std::endl;
 	for (auto& nd : nodes)
 		outputfile << nd.get_id() << "," << nd.get_type() << "," << nd.get_x() << "," << nd.get_y() << "," << nd.get_z() << "," << 
-		nd.pipe1id << "," << nd.pipe2id << "," << nd.pipe3id << "," << nd.get_pipe1() << "," << nd.get_pipe2() << "," << nd.get_pipe3() << std::endl;
+		nd.pipe1id << "," << nd.pipe2id << "," << nd.pipe3id << "," << nd.get_pipe1_index() << "," << nd.get_pipe2_index() << "," << nd.get_pipe3_index() << std::endl;
 	outputfile.close();
 }
 
@@ -123,11 +123,11 @@ void hazard::update_pipe_network()
 			{
 				if (pp.node1id == nd.get_id())
 				{
-					pp.add_node1(nd.index);
+					pp.add_node1_index(nd.index);
 				}
 				else if (pp.node2id == nd.get_id())
 				{
-					pp.add_node2(nd.index);
+					pp.add_node2_index(nd.index);
 				}
 			}
 		}
@@ -141,15 +141,15 @@ void hazard::update_pipe_network()
 			{
 				if (nd.pipe1id == pp.get_id())
 				{
-					nd.add_pipe1(pp.index);
+					nd.add_pipe1_index(pp.index);
 				}
 				else if (nd.pipe2id == pp.get_id())
 				{
-					nd.add_pipe2(pp.index);
+					nd.add_pipe2_index(pp.index);
 				}
 				else if ((nd.pipe3id) == pp.get_id())
 				{
-					nd.add_pipe3(pp.index);
+					nd.add_pipe3_index(pp.index);
 				}
 			}
 		}
@@ -160,17 +160,19 @@ void hazard::update_pipe_network()
 	output_data("C:\\output.txt");
 }
 
+/**
+calculates and assigns the length of a pipe based on the coordinates of its 
+associated nodes
+*/
 void hazard::set_pipe_length()
 {
 	for (auto& pp : pipes)
 	{
-		double l;
-		double x_diff = nodes[pp.get_node1()].get_x() - nodes[pp.get_node2()].get_x();
-		double y_diff = nodes[pp.get_node1()].get_y() - nodes[pp.get_node2()].get_y();;
-		double z_diff = nodes[pp.get_node1()].get_z() - nodes[pp.get_node2()].get_z();;
+		double x_diff = nodes[pp.get_node1_index()].get_x() - nodes[pp.get_node2_index()].get_x();
+		double y_diff = nodes[pp.get_node1_index()].get_y() - nodes[pp.get_node2_index()].get_y();
+		double z_diff = nodes[pp.get_node1_index()].get_z() - nodes[pp.get_node2_index()].get_z();
 		double ll = sqrt(pow(x_diff, 2.0) + pow(y_diff, 2.0) + pow(z_diff, 2.0));
-		l = ll;
-		pp.set_pipe_length(l);
+		pp.set_pipe_length(ll);
 	}
 }
 
@@ -364,4 +366,114 @@ void hazard::info()
 		std::cout << "----------------------------------------------------" << std::endl;
 	}
 	
+}
+
+/**
+assigns mass flow rates to all pipes and nodes based on the required gas quantity from nozzles
+*/
+void hazard::assign_initial_flow_rates(double sTime)
+{
+	//set the mass flow rate for all the pipes to zero
+	for (int i = 0; i < pipes.size(); i++)
+	{
+		pipes[i].set_mass_flow_rate(0.0);
+	}
+
+	// find all the nozzles in the piping structure of this hazard
+	std::vector<int> nozzle_indecies;
+	for (int i = 0 ; i < nodes.size() ; i++)
+	{
+		if (nodes[i].get_type() == "Nozzle")
+		{
+			nozzle_indecies.push_back(i);
+		}
+	}
+
+	// find all the tees in the piping structure of this hazard
+	std::vector<int> tee_indecies;
+	for (int i = 0; i < nodes.size() ; i++)
+	{
+		if (nodes[i].get_type() == "Bull Tee" || nodes[i].get_type() == "Side Tee")
+		{
+			tee_indecies.push_back(i);
+		}
+	}
+
+	// find the manifold outlet in the piping structure of this hazard
+	int manifold_outlet_index;
+	for (int i = 0; i < nodes.size() ; i++)
+	{
+		if (nodes[i].get_type() == "Manifold Outlet")
+		{
+			manifold_outlet_index = i;
+			break;
+		}
+	}
+
+	int current_node_index;
+	int upstream_pipe_index;
+	int downstream_pipe_index;
+
+	//this part assigns the mass flow rates from each nozzle to the closest tee
+	for (int i = 0; i < nozzle_indecies.size(); i++)
+	{
+		current_node_index = i; //i-th nozzle's index
+		
+		//assign the upstream pipe index of the nozzle and calculate and assign the mass flow rate from the nozzle to the pipe connecting to it
+		//because nozzles don't have downstream pipes, this calculation should be done for nozzles once and then move to the upstream nodes and pipes
+		upstream_pipe_index = nodes[current_node_index].get_pipe1_index();
+		double i_th_nozzle_mass_flow_rate = nodes[current_node_index].calculate_nozzle_mass_flow_rate(sTime);
+		pipes[upstream_pipe_index].set_mass_flow_rate(i_th_nozzle_mass_flow_rate);
+		
+		//assign the indecies for current node (node upstream of the nozzle) and its upstream and downstream pipes
+		current_node_index = pipes[upstream_pipe_index].get_node1_index();
+		upstream_pipe_index = nodes[current_node_index].get_pipe1_index();
+		downstream_pipe_index = nodes[current_node_index].get_pipe2_index();
+
+		while (nodes[current_node_index].get_type() != "Bull Tee" || nodes[current_node_index].get_type() != "Side Tee" || nodes[current_node_index].get_type() != "Manifold Outlet")
+		{
+			//assign the flow rate of downstream pipe to upstream pipe
+			pipes[upstream_pipe_index].set_mass_flow_rate(pipes[downstream_pipe_index].get_mass_flow_rate());
+
+			//use the inlet node of the upstream pipe as the current node and use its upstream and downstream pipes for next loop
+			current_node_index = pipes[upstream_pipe_index].get_node1_index();
+			upstream_pipe_index = nodes[current_node_index].get_pipe1_index();
+			downstream_pipe_index = nodes[current_node_index].get_pipe2_index();
+		}
+	}
+
+	//this part assigns initial mass flow rates for the rest of the piping system until the manifold outlet
+	bool pipes_with_no_flow_rate = true;
+
+	while (pipes_with_no_flow_rate)
+	{
+		pipes_with_no_flow_rate = false;
+		for (int i = 0; i < tee_indecies.size(); i++)
+		{
+			double mass_flow_rate_inlet = pipes[nodes[i].get_pipe1_index()].get_mass_flow_rate();
+			double mass_flow_rate_outlet_1 = pipes[nodes[i].get_pipe2_index()].get_mass_flow_rate();
+			double mass_flow_rate_outlet_2 = pipes[nodes[i].get_pipe3_index()].get_mass_flow_rate();
+			if (mass_flow_rate_outlet_1 != 0.0 || mass_flow_rate_outlet_2 != 0.0 || mass_flow_rate_inlet == 0.0)
+			{
+				pipes_with_no_flow_rate = true;
+
+				upstream_pipe_index = nodes[i].get_pipe1_index();
+				pipes[upstream_pipe_index].set_mass_flow_rate(mass_flow_rate_outlet_1 + mass_flow_rate_outlet_2);
+
+				current_node_index = pipes[upstream_pipe_index].get_node1_index();
+				upstream_pipe_index = nodes[current_node_index].get_pipe1_index();
+				downstream_pipe_index = nodes[current_node_index].get_pipe2_index();
+				while (nodes[current_node_index].get_type() != "Bull Tee" || nodes[current_node_index].get_type() != "Side Tee" || nodes[current_node_index].get_type() != "Manifold Outlet")
+				{
+					//assign the flow rate of downstream pipe to upstream pipe
+					pipes[upstream_pipe_index].set_mass_flow_rate(pipes[downstream_pipe_index].get_mass_flow_rate());
+
+					//use the inlet node of the upstream pipe as the current node and use its upstream and downstream pipes for next loop
+					current_node_index = pipes[upstream_pipe_index].get_node1_index();
+					upstream_pipe_index = nodes[current_node_index].get_pipe1_index();
+					downstream_pipe_index = nodes[current_node_index].get_pipe2_index();
+				}
+			}
+		}
+	}
 }

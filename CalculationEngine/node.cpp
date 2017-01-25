@@ -76,9 +76,9 @@ int node::update_hydraulics(hazard& Haz)
 	//calculate pressureDrop1
 	//calculate PressureDrop2
 
-	/*Haz.pipes[pipe2id].set_p1(Haz.pipes[pipe1id].p2 - pressureDrop1);
+	Haz.pipes[pipe2id].set_p1(Haz.pipes[pipe1id].p2 - pressureDrop1);
 	if (type == "Bull Tee" || type == "Side Tee")
-		Haz.pipes[pipe3id].set_p1(Haz.pipes[pipe1id].p2 - pressureDrop2);*/
+		Haz.pipes[pipe3id].set_p1(Haz.pipes[pipe1id].p2 - pressureDrop2);
 
 	//calculate and assign the flow (mass flow rate) at the beginning of the 
 	//next pipes based on the mass flow rate at the end of the previous
@@ -160,11 +160,11 @@ int node::set_equivalent_length(double internal_diameter, std::string Type)
 /**
 calculating the mass flow rate from nozzle
 */
-double node::calculate_mass_flow_rate(double sTime)
+double node::calculate_nozzle_mass_flow_rate(double sTime)
 {
 	double MFR;
 	double inergenDensityat68F;
 	inergenDensityat68F = 1.416;// *kilogram_per_cubic_meter;
-	MFR = inergenDensityat68F * required_gas_quantity;// / sTime;
+	MFR = inergenDensityat68F * required_gas_quantity / sTime;
 	return MFR; //kilogram per second
 }

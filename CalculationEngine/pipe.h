@@ -46,10 +46,9 @@ protected:
 	std::string type;
 	int connection_type; // threaded = 1, welded = 2
 
-	int node1;
-	int node2;
-
-	
+	//these are the indecies of the nodes in the nodes vector in a hazard
+	int node1_index;
+	int node2_index;
 
 	double maxPressure;
 	double minPressure;
@@ -67,13 +66,15 @@ public:
 	pipe();
 	~pipe();
 
+	//ids of the nodes passed by the interface
 	int node1id;
 	int node2id;
 
+	//index of the pipe in the pipes vector of a hazard
 	int index;
 
-	double p1;
-	double p2;
+	double p1; //pressure at the beginneing
+	double p2; //pressure at the end
 
 	pipe
 	(
@@ -92,10 +93,10 @@ public:
 	double get_length() { return pipe_length; }
 	void set_pipe_length(double lng) { pipe_length = lng; }
 	
-	void add_node1(int nd1) { node1 = nd1; }
-	int get_node1() { return node1; }
-	void add_node2(int nd2) { node2 = nd2; }
-	int get_node2() { return node2; }
+	void add_node1_index(int nd1) { node1_index = nd1; }
+	int get_node1_index() { return node1_index; }
+	void add_node2_index(int nd2) { node2_index = nd2; }
+	int get_node2_index() { return node2_index; }
 
 	std::string get_type() { return type; }
 
@@ -128,4 +129,7 @@ public:
 
 	double get_min_mass_flow_rate();
 	double get_max_mass_flow_rate();
+
+	void set_mass_flow_rate(double MFR) { massFlowRate = MFR; }
+	double get_mass_flow_rate() { return massFlowRate; }
 };

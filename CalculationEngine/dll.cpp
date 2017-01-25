@@ -565,7 +565,8 @@ int __stdcall add_pipe
 	int node1_id, 
 	int node2_id, 
 	double diameter,
-	int connection_type
+	int connection_type,
+	int schedule_id
 )
 {
 	pipe pp(pipe_id, type, node1_id, node2_id, diameter, diameter, connection_type);

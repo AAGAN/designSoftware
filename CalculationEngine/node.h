@@ -26,9 +26,11 @@ protected:
 	std::string type;
 	int connection_type; //!< threaded = 1 , welded = 2
 	
-	int pipe1;
-	int pipe2;
-	int pipe3;
+	//indeces of the pipes connected to the node
+	//these indecies are for the vector of pipes in a hazard
+	int pipe1_index;
+	int pipe2_index;
+	int pipe3_index;
 	
 	double x; //!< X coordinate
 	double y; //!< Y coordinate
@@ -45,10 +47,12 @@ public:
 	node();
 	~node();
 
+	//ids that are passed by the interface
 	int pipe1id;
 	int pipe2id;
 	int pipe3id;
 
+	//index of the node in the nodes vector of a hazard
 	int index;
 
 	node
@@ -81,13 +85,14 @@ public:
 	double get_orifice_diameter() { return orifice_diameter; }
 	void set_orifice_diameter(double diam) { orifice_diameter = diam; }
 
-	void add_pipe1(int pp1) { pipe1 = pp1; }
-	int get_pipe1() { return pipe1; }
-	void add_pipe2(int pp2) { pipe2 = pp2; }
-	int get_pipe2() { return pipe2; }
-	void add_pipe3(int pp3) { pipe3 = pp3; }
-	int get_pipe3() { return pipe3; }
+	void add_pipe1_index(int pp1) { pipe1_index = pp1; }
+	int get_pipe1_index() { return pipe1_index; }
+	void add_pipe2_index(int pp2) { pipe2_index = pp2; }
+	int get_pipe2_index() { return pipe2_index; }
+	void add_pipe3_index(int pp3) { pipe3_index = pp3; }
+	int get_pipe3_index() { return pipe3_index; }
 
+	void set_type(std::string tp) { tp = type; }
 	std::string get_type() { return type; }
 
 	int update_hydraulics(hazard& Haz);
@@ -97,5 +102,5 @@ public:
 
 	int set_equivalent_length(double, std::string);
 
-	double calculate_mass_flow_rate(double sTime);
+	double calculate_nozzle_mass_flow_rate(double sTime);
 };

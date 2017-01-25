@@ -202,9 +202,9 @@ extern "C" int __stdcall add_node
 	int node_id = 0,
 	int hazard_id = 0,
 	int type = 0, //0,1,2,3,4,5 or 6
-	int pipe1_id = 0,//!< for tees, this is the side branch
-	int pipe2_id = 0,//!< for side-through tees this is the inlet
-	int pipe3_id = 0,//!< for side-through tees this is the outlet
+	int pipe1_id = 0,//!< for tees, this is the inlet
+	int pipe2_id = 0,//!< for side-through tees this is the through outlet
+	int pipe3_id = 0,//!< for side-through tees this is the side outlet
 	double x_coordinate = 0.0, //!< in meters
 	double y_coordinate = 0.0, //!< in meters
 	double z_coordinate = 0.0, //!< in meters
@@ -246,7 +246,8 @@ extern "C" int __stdcall add_pipe
 	int node1_id = 0,
 	int node2_id = 0,
 	double diameter1 = 0.0, //!< diameter of the pipe
-	int connection_type = 1 //threaded = 1, welded = 2
+	int connection_type = 1, //threaded = 1, welded = 2
+	int schedule_id = 1 //schedule40 = 1, schedule80 = 2 (as input by user)
 );
 
 /** removes a pipe from a hazard*/
