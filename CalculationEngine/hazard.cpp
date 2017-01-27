@@ -423,7 +423,7 @@ void hazard::assign_initial_flow_rates(double sTime)
 	//this part assigns the mass flow rates from each nozzle to the closest tee
 	for (unsigned int i = 0; i < nozzle_indecies.size(); i++)
 	{
-		current_node_index = i; //i-th nozzle's index
+		current_node_index = nozzle_indecies[i]; //i-th nozzle's index
 		
 		//assign the upstream pipe index of the nozzle and calculate and assign the mass flow rate from the nozzle to the pipe connecting to it
 		//because nozzles don't have downstream pipes, this calculation should be done for nozzles once and then move to the upstream nodes and pipes
@@ -436,7 +436,8 @@ void hazard::assign_initial_flow_rates(double sTime)
 		upstream_pipe_index = nodes[current_node_index].get_pipe1_index();
 		downstream_pipe_index = nodes[current_node_index].get_pipe2_index();
 
-		while (nodes[current_node_index].get_type() != "Bull Tee" || nodes[current_node_index].get_type() != "Side Tee" || nodes[current_node_index].get_type() != "Manifold Outlet")
+		//only elbows and couplings can be in a "pipe section" 
+		while (nodes[current_node_index].get_type() == "Elbow" || nodes[current_node_index].get_type() == "Coupling")
 		{
 			//assign the flow rate of downstream pipe to upstream pipe
 			pipes[upstream_pipe_index].set_mass_flow_rate(pipes[downstream_pipe_index].get_mass_flow_rate());
@@ -456,22 +457,23 @@ void hazard::assign_initial_flow_rates(double sTime)
 		pipes_with_no_flow_rate = false;
 		for (unsigned int i = 0; i < tee_indecies.size(); i++)
 		{
-			double mass_flow_rate_inlet = pipes[nodes[i].get_pipe1_index()].get_mass_flow_rate();
-			double mass_flow_rate_outlet_1 = pipes[nodes[i].get_pipe2_index()].get_mass_flow_rate();
-			double mass_flow_rate_outlet_2 = pipes[nodes[i].get_pipe3_index()].get_mass_flow_rate();
+			int current_tee = tee_indecies[i];
+			double mass_flow_rate_inlet = pipes[nodes[current_tee].get_pipe1_index()].get_mass_flow_rate();
+			double mass_flow_rate_outlet_1 = pipes[nodes[current_tee].get_pipe2_index()].get_mass_flow_rate();
+			double mass_flow_rate_outlet_2 = pipes[nodes[current_tee].get_pipe3_index()].get_mass_flow_rate();
 			//if both of the outlets have values and the inlet doesn't have a value then
 			if (mass_flow_rate_outlet_1 != 0.0 || mass_flow_rate_outlet_2 != 0.0 || mass_flow_rate_inlet == 0.0)
 			{
 				pipes_with_no_flow_rate = true;
 
-				upstream_pipe_index = nodes[i].get_pipe1_index();
+				upstream_pipe_index = nodes[current_tee].get_pipe1_index();
 				pipes[upstream_pipe_index].set_mass_flow_rate(mass_flow_rate_outlet_1 + mass_flow_rate_outlet_2);
 
 				//assign the same mass flow rate to the pipes until the next tee or maniforl outlet
 				current_node_index = pipes[upstream_pipe_index].get_node1_index();
 				upstream_pipe_index = nodes[current_node_index].get_pipe1_index();
 				downstream_pipe_index = nodes[current_node_index].get_pipe2_index();
-				while (nodes[current_node_index].get_type() != "Bull Tee" || nodes[current_node_index].get_type() != "Side Tee" || nodes[current_node_index].get_type() != "Manifold Outlet")
+				while (nodes[current_node_index].get_type() == "Elbow" || nodes[current_node_index].get_type() == "Coupling")
 				{
 					//assign the flow rate of downstream pipe to upstream pipe
 					pipes[upstream_pipe_index].set_mass_flow_rate(pipes[downstream_pipe_index].get_mass_flow_rate());
