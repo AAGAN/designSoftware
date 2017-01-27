@@ -105,7 +105,7 @@ Standard eq. length of 90s is halved per request of customer 21/12/2009
 */
 int node::set_equivalent_length(double internal_diameter, std::string Type)
 {
-	if(Type == "Elbow")
+	if(Type == "Elbow")//the node's type should be used instead!
 	{
 		if (connection_type == 1)
 		{
@@ -154,7 +154,7 @@ int node::set_equivalent_length(double internal_diameter, std::string Type)
 		equivalent_length_1 = 0.0;// *meters;
 		equivalent_length_2 = 0.0;// *meters;
 	}
-	
+	return 0;
 }
 
 /**

@@ -553,6 +553,7 @@ int __stdcall reset_network
 		{
 			haz.nodes.clear();
 			haz.pipes.clear();
+			break;
 		}
 	return 0;
 }

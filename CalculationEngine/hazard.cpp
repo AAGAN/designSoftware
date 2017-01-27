@@ -1,6 +1,7 @@
 #include "hazard.h"
 
 extern bool NFPA2001;
+double sTime = 60.0; //just for now before adding a loop to itterate over sTime
 
 hazard::hazard()
 {
@@ -91,28 +92,27 @@ void hazard::output_data(std::string filename)
 	for (auto& enc : enclosures)
 		outputfile << enc.get_id() << "," << enc.get_net_volume() << "," << enc.get_estimated_flow_rate() << std::endl;
 	outputfile << "Pipes: " << std::endl;
-	outputfile << "ID , type , node1 ID , node2ID , node1 , node2, length" << std::endl;
+	outputfile << "ID , type , node1 ID , node2ID , node1 , node2, length, mass flow rate" << std::endl;
 	for (auto& pp : pipes)
-		outputfile << pp.get_id() << "," << pp.get_type() << "," << pp.node1id << "," << pp.node2id << "," << pp.get_node1_index() << "," << pp.get_node2_index() << "," << pp.get_length() << std::endl;
+		outputfile << pp.get_id() << "," << pp.get_type() << "," << pp.node1id << "," << pp.node2id << "," << pp.get_node1_index() << "," << pp.get_node2_index() << "," << pp.get_length() << "," << pp.get_mass_flow_rate() << std::endl;
 	outputfile << "Nodes: " << std::endl;
-	outputfile << " ID , type ,  x , y , z ,pipe1 ID , pipe2 ID , pipe3 ID , pipe1 , pipe2 , pipe3 " << std::endl;
+	outputfile << " ID , type ,  x , y , z ,pipe1 ID , pipe2 ID , pipe3 ID , pipe1 , pipe2 , pipe3 , nozzle mass flow rate" << std::endl;
 	for (auto& nd : nodes)
 		outputfile << nd.get_id() << "," << nd.get_type() << "," << nd.get_x() << "," << nd.get_y() << "," << nd.get_z() << "," << 
-		nd.pipe1id << "," << nd.pipe2id << "," << nd.pipe3id << "," << nd.get_pipe1_index() << "," << nd.get_pipe2_index() << "," << nd.get_pipe3_index() << std::endl;
+		nd.pipe1id << "," << nd.pipe2id << "," << nd.pipe3id << "," << nd.get_pipe1_index() << "," << nd.get_pipe2_index() << "," << nd.get_pipe3_index() << "," << nd.calculate_nozzle_mass_flow_rate(60.0) << std::endl;
 	outputfile.close();
 }
 
 /**
-based on the ids of the pipes and nodes, sets the correct pointers
-to pipe and node objects of the hazard
-
+based on the ids of the pipes and nodes, sets the correct indecies
+to pipes and nodes vectors of the hazard
 */
 void hazard::update_pipe_network()
 {
-	for (uint16_t i = 0; i < nodes.size(); i++)
+	for (unsigned int i = 0; i < nodes.size(); i++)
 		nodes[i].index = i;
 
-	for (uint16_t i = 0; i < pipes.size(); i++)
+	for (unsigned int i = 0; i < pipes.size(); i++)
 		pipes[i].index = i;
 
 	for (auto& nd : nodes)
@@ -156,6 +156,12 @@ void hazard::update_pipe_network()
 	}
 
 	set_pipe_length();
+	assign_initial_flow_rates(sTime);
+
+	/*for (auto& nd : nodes)
+	{
+		nd.set_equivalent_length()
+	}*/
 
 	output_data("C:\\output.txt");
 }
@@ -374,14 +380,14 @@ assigns mass flow rates to all pipes and nodes based on the required gas quantit
 void hazard::assign_initial_flow_rates(double sTime)
 {
 	//set the mass flow rate for all the pipes to zero
-	for (int i = 0; i < pipes.size(); i++)
+	for (unsigned int i = 0; i < pipes.size(); i++)
 	{
 		pipes[i].set_mass_flow_rate(0.0);
 	}
 
 	// find all the nozzles in the piping structure of this hazard
 	std::vector<int> nozzle_indecies;
-	for (int i = 0 ; i < nodes.size() ; i++)
+	for (unsigned int i = 0 ; i < nodes.size() ; i++)
 	{
 		if (nodes[i].get_type() == "Nozzle")
 		{
@@ -391,7 +397,7 @@ void hazard::assign_initial_flow_rates(double sTime)
 
 	// find all the tees in the piping structure of this hazard
 	std::vector<int> tee_indecies;
-	for (int i = 0; i < nodes.size() ; i++)
+	for (unsigned int i = 0; i < nodes.size() ; i++)
 	{
 		if (nodes[i].get_type() == "Bull Tee" || nodes[i].get_type() == "Side Tee")
 		{
@@ -401,7 +407,7 @@ void hazard::assign_initial_flow_rates(double sTime)
 
 	// find the manifold outlet in the piping structure of this hazard
 	int manifold_outlet_index;
-	for (int i = 0; i < nodes.size() ; i++)
+	for (unsigned int i = 0; i < nodes.size() ; i++)
 	{
 		if (nodes[i].get_type() == "Manifold Outlet")
 		{
@@ -415,7 +421,7 @@ void hazard::assign_initial_flow_rates(double sTime)
 	int downstream_pipe_index;
 
 	//this part assigns the mass flow rates from each nozzle to the closest tee
-	for (int i = 0; i < nozzle_indecies.size(); i++)
+	for (unsigned int i = 0; i < nozzle_indecies.size(); i++)
 	{
 		current_node_index = i; //i-th nozzle's index
 		
@@ -448,11 +454,12 @@ void hazard::assign_initial_flow_rates(double sTime)
 	while (pipes_with_no_flow_rate)
 	{
 		pipes_with_no_flow_rate = false;
-		for (int i = 0; i < tee_indecies.size(); i++)
+		for (unsigned int i = 0; i < tee_indecies.size(); i++)
 		{
 			double mass_flow_rate_inlet = pipes[nodes[i].get_pipe1_index()].get_mass_flow_rate();
 			double mass_flow_rate_outlet_1 = pipes[nodes[i].get_pipe2_index()].get_mass_flow_rate();
 			double mass_flow_rate_outlet_2 = pipes[nodes[i].get_pipe3_index()].get_mass_flow_rate();
+			//if both of the outlets have values and the inlet doesn't have a value then
 			if (mass_flow_rate_outlet_1 != 0.0 || mass_flow_rate_outlet_2 != 0.0 || mass_flow_rate_inlet == 0.0)
 			{
 				pipes_with_no_flow_rate = true;
@@ -460,6 +467,7 @@ void hazard::assign_initial_flow_rates(double sTime)
 				upstream_pipe_index = nodes[i].get_pipe1_index();
 				pipes[upstream_pipe_index].set_mass_flow_rate(mass_flow_rate_outlet_1 + mass_flow_rate_outlet_2);
 
+				//assign the same mass flow rate to the pipes until the next tee or maniforl outlet
 				current_node_index = pipes[upstream_pipe_index].get_node1_index();
 				upstream_pipe_index = nodes[current_node_index].get_pipe1_index();
 				downstream_pipe_index = nodes[current_node_index].get_pipe2_index();
