@@ -43,6 +43,11 @@ protected:
 	double pressureDrop1; //!< pressure drop across the node (if tee, pressure drop across input and first side)
 	double pressureDrop2; //!< pressure drop across the node (if not tee then 0, if tee, pressure drop across input and second side or through)
 
+	double density;
+	double static_temperature;
+	double dynamic_pressure;
+	double static_pressure;
+
 public:
 	node();
 	~node();
@@ -103,4 +108,8 @@ public:
 	int set_equivalent_length(double, std::string);
 
 	double calculate_nozzle_mass_flow_rate(double sTime);
+
+	double calculate_manifold_pressure(double max_flow_rate, int number_of_cylinders, double storage_pressure, double specific_heat_ratio);
+	double calculate_density(double, double);
+	double calculate_temperature(double, double, double);
 };
