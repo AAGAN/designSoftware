@@ -172,39 +172,56 @@ double node::calculate_nozzle_mass_flow_rate(double sTime)
 /**
 calculates the manifold pressure
 */
-double node::calculate_manifold_pressure(double max_mass_flow_rate, int number_of_cylinders, double storage_pressure, double specific_heat_ratio)
+double node::calculate_manifold_pressure(double maxMassFlowRate, int numberOfCylinders, double storagePressure,double storageTemperature,double storageDensity, double specificHeatRatio)
 {
-	double CylFlow;
-	double iCylinderBasis = 1;
+	//---------------------------------------------------------------------
+	//this is some experimental method to find the pressure at the manifold
 	double iManPressureSwitch = 805.0;
 
-	CylFlow = max_mass_flow_rate / iCylinderBasis;
-	double dblTemp = -119.47 * pow(CylFlow, 3) + 251.21 * pow(CylFlow, 2) - 152.13 * CylFlow + 1162.3;
-	if (dblTemp > 1175.0) dblTemp = 1175;
-	bool bManPresLim = false;
-	if (number_of_cylinders > 1 && dblTemp < iManPressureSwitch)
+	int iCylinderBasis = 1;
+	double CylFlow = maxMassFlowRate*2.205 / iCylinderBasis; // 1 kg/s = 2.205 lb/s
+	double manifoldPressure = -119.47 * pow(CylFlow, 3) + 251.21*pow(CylFlow, 2) - 152.13*CylFlow + 1162.3;
+	if (manifoldPressure > 1175)manifoldPressure = 1175;
+	while (iCylinderBasis < numberOfCylinders && manifoldPressure < iManPressureSwitch && numberOfCylinders>1)
 	{
-
+		iCylinderBasis++;
+		CylFlow = maxMassFlowRate*2.205 / iCylinderBasis; // 1 kg/s = 2.205 lb/s
+		manifoldPressure = -119.47 * pow(CylFlow, 3) + 251.21*pow(CylFlow, 2) - 152.13*CylFlow + 1162.3;
+		if (manifoldPressure > 1175)manifoldPressure = 1175;
 	}
+	if (manifoldPressure < 550)manifoldPressure = 550;
+	//---------------------------------------------------------------------
 
-	static_pressure = dblTemp * 6895.0; // 1 psi = 6895 Pa
-	density = calculate_density(static_pressure, specific_heat_ratio);
-	static_temperature = calculate_temperature(static_pressure, storage_pressure, specific_heat_ratio);
+	static_pressure = manifoldPressure * 6895.0; // 1 psi = 6895 Pa
+	density = calculate_density(static_pressure, specificHeatRatio, storagePressure, storageDensity);
+	static_temperature = calculate_temperature(static_pressure, storagePressure, storageTemperature, specificHeatRatio);
 	return static_pressure;
 }
 
 /**
-density based on pressure
+density based on pressure and storage temperature
 */
-double node::calculate_density(double static_pressure, double specific_heat_ratio)
+double node::calculate_density(double staticPressure, double specificHeatRatio, double storagePressure, double storageTemperature, double gasConstant)
 {
+	
+	double staticTemperature = calculate_temperature(staticPressure, storagePressure, storageTemperature, specificHeatRatio);
+	density = staticPressure / ( gasConstant * staticTemperature );
 	return density;
+}
+
+/**
+density based on pressure and storage density
+*/
+double node::calculate_density(double staticPressure, double specificHeatRatio, double storagePressure, double storageDensity)
+{
+	return density = storageDensity * pow(storagePressure / staticPressure, (1 - 2 * specificHeatRatio) / specificHeatRatio);
 }
 
 /**
 temperature based on pressure
 */
-double node::calculate_temperature(double static_pressure, double storate_pressure, double specific_heat_ratio)
+double node::calculate_temperature(double staticPressure, double storagePressure, double storageTemperature,double specificHeatRatio)
 {
+	static_temperature = storageTemperature*pow((staticPressure/storagePressure),(specificHeatRatio-1)/specificHeatRatio);
 	return static_temperature;
 }

@@ -109,7 +109,8 @@ public:
 
 	double calculate_nozzle_mass_flow_rate(double sTime);
 
-	double calculate_manifold_pressure(double max_flow_rate, int number_of_cylinders, double storage_pressure, double specific_heat_ratio);
-	double calculate_density(double, double);
-	double calculate_temperature(double, double, double);
+	double calculate_manifold_pressure(double, int , double, double, double, double);
+	double calculate_density(double, double, double, double, double);
+	double calculate_density(double, double, double, double);
+	double calculate_temperature(double, double, double, double);
 };

@@ -24,6 +24,18 @@ bool enclosure_exists(int, int);
 std::vector<pData> pipe::pipeData;
 std::vector<vData> pipe::valveData;
 
+struct gas
+{
+	std::string name;
+	double Cp; //!< specific heat at constant pressure
+	double Cv; //!< specific heat at constant volume
+	double Gamma; //!< gamma = Cp / Cv
+	double MW; //!< molecular weight
+	double R; //!< gas constant J / (kg*K)
+};
+
+gas Agent;
+
 /**
 calculate_density is a global function that calculates the density of an inert gas (with specified heat_capacity_ratio)
 based on the stagnation density and stagnation pressure at any static pressure. 
@@ -46,6 +58,52 @@ double calculate_density
 	return static_density;
 }
 
+void set_agent_properties(int agent)
+{
+	switch (agent)
+	{
+	case 0:
+		//agent is inergen (IG-541)
+		Agent.Cp = 815.408; // J/(kg*K)
+		Agent.Cv = 562.906; // J/(kg*K)
+		Agent.Gamma = 1.449;
+		Agent.MW = 0.034; // kg/mol
+		Agent.name = "inergen";
+		Agent.R = 252.502; // J / kg*K
+		break;
+	case 1:
+		//agent is N2+Ar (IG-55) PROPERTIES ARE NOT SET YET!
+		Agent.Cp = 815.408; // J/(kg*K)
+		Agent.Cv = 562.906; // J/(kg*K)
+		Agent.Gamma = 1.449;
+		Agent.MW = 0.034; // kg/mol
+		Agent.name = "IG-55";
+		Agent.R = 252.502; // J/kg*K
+		break;
+	case 2:
+		//agent is Ar (IG-01)
+		Agent.Cp = 520.0; // J/(kg*K)
+		Agent.Cv = 312.0; // J/(kg*K)
+		Agent.Gamma = 1.667;
+		Agent.MW = 0.039948; // kg/mol
+		Agent.name = "IG-01";
+		Agent.R = 208.0; // J / kg*K
+		break;
+	case 3:
+		//agent is N2 (IG-100)
+		Agent.Cp = 1040.0; // J/(kg*K)
+		Agent.Cv = 743.0; // J/(kg*K)
+		Agent.Gamma = 1.4;
+		Agent.MW = 0.0280134; // kg/mol
+		Agent.name = "IG-100";
+		Agent.R = 189.0; // J / kg*K
+		break;
+	default:
+		std::cout << "agent should be 0, 1, 2 or 3 for IG-541, IG-55, IG-01 or IG-100" << std::endl;
+		break;
+	}
+}
+
 int __stdcall add_hazard
 (
 	int ID,
@@ -56,6 +114,7 @@ int __stdcall add_hazard
 	int agent
 )
 {
+	set_agent_properties(agent);
 	double discharge_time;
 	discharge_time = dischargeTime;
 	if (hazard_exists(ID))

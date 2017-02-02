@@ -8,6 +8,8 @@
 #include <node.h>
 #include <fstream>
 
+
+
 /**
 this class defines the hazards which may include many enclosures. 
 Each hazard is protected by all the cylinders. 
@@ -35,6 +37,7 @@ public:
 	void set_cylinder_volume(double cyl_vol) { containerVolSize = cyl_vol; }
 	void set_discharge_time(double dis_time) { discharge_time = dis_time; }
 	void update_pipe_network();
+	
 private:
 	std::string name;
 	int id;	
