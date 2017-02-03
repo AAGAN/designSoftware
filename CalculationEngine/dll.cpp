@@ -584,6 +584,12 @@ int __stdcall add_pipe_size_data
 	double mass_per_unit_Length
 )
 {
+	double maximum_flow_rate;
+	double minimum_flow_rate;
+	minimum_flow_rate = 0.567 * (2.07 - 10.388 * (internal_diameter*39.37) + 32.82 * pow((internal_diameter*39.37), 2) + 1.696*pow((internal_diameter*39.37), 3)); // experimental equation, 1 m = 39.37 in
+	maximum_flow_rate = 10.582 * minimum_flow_rate;
+	maximum_flow_rate *= 0.00756; //1 lb/min = 0.00756 kg/s
+	minimum_flow_rate *= 0.00756;
 	pipe::addPipeSizeData
 	(
 		schedule, 
@@ -593,7 +599,9 @@ int __stdcall add_pipe_size_data
 		friction_factor,
 		maximum_pressure_rating, // * pascals,
 		type,
-		mass_per_unit_Length // * kilogram_per_meters
+		mass_per_unit_Length, // * kilogram_per_meters
+		maximum_flow_rate,
+		minimum_flow_rate
 	);
 	return 0;
 }
@@ -660,7 +668,7 @@ int __stdcall add_pipe
 	int schedule_id
 )
 {
-	pipe pp(pipe_id, type, node1_id, node2_id, diameter, diameter, connection_type);
+	pipe pp(pipe_id, type, node1_id, node2_id, diameter, connection_type,schedule_id);
 	if (pipe_exist(pipe_id, hazard_id))
 		remove_pipe(pipe_id, hazard_id);
 	for (auto& haz : hazards)

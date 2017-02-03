@@ -15,11 +15,11 @@ pipe::pipe
 	int Type, 
 	int Node1id, 
 	int Node2id, 
-	double Diameter1, 
-	double Diameter2,
-	int connectionType
+	double Diameter,
+	int connectionType,
+	int Schedule
 )
-:id(Id),node1id(Node1id),node2id(Node2id),diameter1(Diameter1),diameter2(Diameter2),connection_type(connectionType)
+:id(Id),node1id(Node1id),node2id(Node2id),diameter(Diameter),connection_type(connectionType),schedule(Schedule)
 {
 	switch (Type)
 	{
@@ -35,6 +35,10 @@ pipe::pipe
 	default:
 		break;
 	}
+
+	//pipe size can be fixed by the user, the code to add this capability is not added yet
+	//for now all pipes sizes are going to be changed by the calculation engine
+	user_defined_size = false;
 }
 
 /**
@@ -57,7 +61,9 @@ int pipe::addPipeSizeData
 	double ff,
 	double maxP,
 	int Type,
-	double mass_per_unit_length
+	double mass_per_unit_length,
+	double max_flow_rate,
+	double min_flow_rate
 )
 {
 	pData pipeDATA = {};
@@ -69,6 +75,8 @@ int pipe::addPipeSizeData
 	pipeDATA.maximumPressureRating = maxP;
 	pipeDATA.type = Type;
 	pipeDATA.massPerUnitLength = mass_per_unit_length;
+	pipeDATA.maxFlowRate = max_flow_rate;
+	pipeDATA.minFlowRate = min_flow_rate;
 	pipeData.push_back(pipeDATA);
 	return 0;
 }

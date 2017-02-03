@@ -234,6 +234,9 @@ extern "C" int __stdcall reset_network
 This function adds a pipe to a hazard
 a pipe can be any of the following types:
 
+THE USER SHOULD BE ABLE TO FIX THE PIPE SIZE AND THE INTERFACE
+SHOULD BE ABLE TO DESIGNATE THE PIPES WITH FIX SIZES 
+
 0- straight pipe
 1- valve (needs pressure coefficient)
 2- manifold section

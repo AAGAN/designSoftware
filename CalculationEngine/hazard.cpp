@@ -487,3 +487,25 @@ void hazard::assign_initial_flow_rates(double sTime)
 		}
 	}
 }
+
+/**
+assigns the diameter of the pipe based on the mass flow rate calculated from the agent quantity requirement 
+and the maximum flow rate rating of a pipe
+*/
+void hazard::assign_pipe_sizes_based_on_max_flow_rate()
+{
+	for (auto& pp : pipes)
+	{
+		if (!pp.user_defined_size)
+		{
+			for (auto& pip : pipe::pipeData)
+			{
+				if (pip.schedule == pp.get_schedule() &&  pip.maxFlowRate > pp.get_mass_flow_rate())
+				{
+					pp.set_diameter(pip.internalDiameter);
+					break;
+				}
+			}
+		}
+	}
+}

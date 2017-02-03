@@ -15,9 +15,10 @@ struct pData
 	double internalDiameter;
 	double frictionFactor;
 	double maximumPressureRating;
-	//quantity<pressure> minimumPressureRating;//should be removed!
 	int type; //Threaded = 1, Welded = 2
 	double massPerUnitLength;
+	double maxFlowRate;
+	double minFlowRate;
 };
 
 /**
@@ -45,6 +46,7 @@ protected:
 
 	std::string type;
 	int connection_type; // threaded = 1, welded = 2
+	int schedule; // 40 or 80 for now
 
 	//these are the indecies of the nodes in the nodes vector in a hazard
 	int node1_index;
@@ -55,12 +57,15 @@ protected:
 
 	double pipe_length;
 	
-	double diameter1;
-	double diameter2;
+	//diameter at each end of the pipe, these two are always the same!
+	double diameter;
+	
 
 	double massFlowRate;
 
 	double internal_diameter;
+
+	
 	
 public:
 	pipe();
@@ -76,19 +81,28 @@ public:
 	double p1; //pressure at the beginneing
 	double p2; //pressure at the end
 
+	//if true, the user has defined and fixed the size of the pipe
+	bool user_defined_size;
+
 	pipe
 	(
 		int Id,
 		int Type,
 		int Node1id,
 		int Node2id,
-		double Diameter1,
-		double Diameter2,
-		int connectionType
+		double Diameter,
+		int connectionType,
+		int schedule
 	);
 
 	int get_id() { return id; }
 	void set_id(int pipe_Id) { id = pipe_Id; }
+
+	int get_schedule() { return schedule; }
+	void set_schedule(int sch) { schedule = sch; }
+
+	void set_diameter(double diam) { diameter = diam; }
+	double get_diameter() { return diameter; }
 
 	double get_length() { return pipe_length; }
 	void set_pipe_length(double lng) { pipe_length = lng; }
@@ -113,7 +127,9 @@ public:
 		double ff,
 		double maxP,
 		int Type,
-		double mass_per_unit_Length
+		double mass_per_unit_Length,
+		double max_flow_rate,
+		double min_flow_rate
 	);
 
 	static std::vector<pData> pipeData;
