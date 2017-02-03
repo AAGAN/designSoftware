@@ -24,6 +24,7 @@ bool enclosure_exists(int, int);
 std::vector<pData> pipe::pipeData;
 std::vector<vData> pipe::valveData;
 
+//structure to define the gas properties
 struct gas
 {
 	std::string name;
@@ -32,9 +33,16 @@ struct gas
 	double Gamma; //!< gamma = Cp / Cv
 	double MW; //!< molecular weight
 	double R; //!< gas constant J / (kg*K)
-};
+}Agent;
 
-gas Agent;
+//structure to save the pressure recession test data for cylinders
+struct cylinder_data
+{
+	int percent_remaining;
+	double temperature;
+	double pressure;
+	double density;
+}cylinderData[11];
 
 /**
 calculate_density is a global function that calculates the density of an inert gas (with specified heat_capacity_ratio)
@@ -56,6 +64,28 @@ double calculate_density
 				((1 - 2 * heat_capacity_ratio) / heat_capacity_ratio)
 			 );
 	return static_density;
+}
+
+void set_pressure_recession_data(int agent)
+{
+	switch (agent)
+	{
+	case 0:
+		//agent is inergen (IG-541)
+		cylinderData[1].percent_remaining = 10; cylinderData[1].temperature = 102.167; cylinderData[1].pressure = 1059724.1960; cylinderData[1].density = 42.4490;
+		cylinderData[2].percent_remaining = 20; cylinderData[2].temperature = 140.333; cylinderData[2].pressure = 2910966.5290; cylinderData[2].density = 85.0580;
+		cylinderData[3].percent_remaining = 30; cylinderData[3].temperature = 168.944; cylinderData[3].pressure = 5256562.9600; cylinderData[3].density = 127.507;
+		cylinderData[4].percent_remaining = 40; cylinderData[4].temperature = 192.722; cylinderData[4].pressure = 7995160.5570; cylinderData[4].density = 169.956;
+		cylinderData[5].percent_remaining = 50; cylinderData[5].temperature = 213.444; cylinderData[5].pressure = 11069532.834; cylinderData[5].density = 212.565;
+		cylinderData[6].percent_remaining = 60; cylinderData[6].temperature = 232.000; cylinderData[6].pressure = 14439000.723; cylinderData[6].density = 255.014;
+		cylinderData[7].percent_remaining = 70; cylinderData[7].temperature = 249.000; cylinderData[7].pressure = 18077364.147; cylinderData[7].density = 297.463;
+		cylinderData[8].percent_remaining = 80; cylinderData[8].temperature = 264.667; cylinderData[8].pressure = 21962559.882; cylinderData[8].density = 340.072;
+		cylinderData[9].percent_remaining = 90; cylinderData[9].temperature = 279.333; cylinderData[9].pressure = 26076661.558; cylinderData[9].density = 382.521;
+		cylinderData[10].percent_remaining = 100; cylinderData[10].temperature = 293.167; cylinderData[10].pressure = 30405879.663; cylinderData[10].density = 424.97;
+		break;
+	default:
+		break;
+	}
 }
 
 void set_agent_properties(int agent)
@@ -115,6 +145,7 @@ int __stdcall add_hazard
 )
 {
 	set_agent_properties(agent);
+	set_pressure_recession_data(agent);
 	double discharge_time;
 	discharge_time = dischargeTime;
 	if (hazard_exists(ID))
