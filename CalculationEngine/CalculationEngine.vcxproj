@@ -94,6 +94,9 @@
       <AdditionalLibraryDirectories>C:\Users\arashahmadzadegan\Box Sync\CleanAgentSoftware\DesignSoftware\CoolProp\build\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>$(ProjectName).def</ModuleDefinitionFile>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /y "C:\Users\arashahmadzadegan\Box Sync\CleanAgentSoftware\DesignSoftware\CalculationEngine4\StudioCA3\Win32\Debug\CalculationEngine.dll" "C:\Program Files (x86)\TycoFP\StudioCA\"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
