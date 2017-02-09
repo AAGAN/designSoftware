@@ -395,6 +395,31 @@ void hazard::assign_initial_flow_rates(double sTime)
 		}
 	}
 
+	//assign the required and supplied quantity from enclosure to the nozzles
+	for (unsigned int i = 0; i < enclosures.size(); i++)
+	{
+		for (unsigned int j = 0; j < nozzle_indecies.size(); j++)
+		{
+			if (nodes[nozzle_indecies[j]].get_enclosure_id() == enclosures[i].get_id())
+			{
+				enclosures[i].add_nozzle_index(nozzle_indecies[j]);
+			}
+		}
+	}
+	for (unsigned int i = 0; i < enclosures.size(); i++)
+	{
+		for (unsigned int j = 0; j < nozzle_indecies.size(); j++)
+		{
+			if (nodes[nozzle_indecies[j]].get_enclosure_id() == enclosures[i].get_id())
+			{
+				double required_quantity = enclosures[i].get_vol_agent_required() / enclosures[i].number_of_nozzles();
+				double supplied_quantity = enclosures[i].get_supplied_vol_agent() / enclosures[i].number_of_nozzles();
+				nodes[nozzle_indecies[j]].set_required_quantity(required_quantity);
+				nodes[nozzle_indecies[j]].set_supplied_quantity(supplied_quantity);
+			}
+		}
+	}
+
 	// find all the tees in the piping structure of this hazard
 	std::vector<int> tee_indecies;
 	for (unsigned int i = 0; i < nodes.size() ; i++)

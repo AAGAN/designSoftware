@@ -505,8 +505,6 @@ int __stdcall add_node(
 	double z_coordinate, 
 	double orifice_diameter,
 	int enclosure_id,
-	double required_gas_quantity,
-	double supplied_gas_quantity,
 	int connection_type
 )
 {
@@ -520,8 +518,7 @@ int __stdcall add_node(
 		x_coordinate,
 		y_coordinate,
 		z_coordinate,
-		required_gas_quantity,
-		supplied_gas_quantity,
+		enclosure_id,
 		connection_type
 	);
 	if (type == 0) nd.set_orifice_diameter(orifice_diameter);
@@ -559,8 +556,7 @@ int __stdcall add_cylinder
 		x_coordinate, // * meters,
 		y_coordinate, // * meters,
 		z_coordinate, // * meters,
-		0.0, // * cubic_meter,
-		0.0, // * cubic_meters
+		0, //only for nozzles
 		1
 	);
 	for (auto& haz : hazards)

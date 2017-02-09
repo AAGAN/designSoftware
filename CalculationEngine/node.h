@@ -31,6 +31,8 @@ protected:
 	int pipe1_index;
 	int pipe2_index;
 	int pipe3_index;
+
+	int enclosure_id;
 	
 	double x; //!< X coordinate
 	double y; //!< Y coordinate
@@ -70,8 +72,7 @@ public:
 		double x_coord,
 		double y_coord,
 		double z_coord,
-		double suppliedGasQuantity,
-		double requiredGasQuantity,
+		int enclosureID,
 		int connectionType
 	);
 
@@ -113,4 +114,9 @@ public:
 	double calculate_density(double, double, double, double, double);
 	double calculate_density(double, double, double, double);
 	double calculate_temperature(double, double, double, double);
+
+	int get_enclosure_id() { return enclosure_id; }
+
+	void set_required_quantity(double reqQ) { required_gas_quantity = reqQ; }
+	void set_supplied_quantity(double supQ) { supplied_gas_quantity = supQ; }
 };

@@ -46,7 +46,7 @@ protected:
 
 	std::string type;
 	int connection_type; // threaded = 1, welded = 2
-	int schedule; // 40 or 80 for now
+	int schedule; // 1 = 40 or 2 = 80 for now
 
 	//these are the indecies of the nodes in the nodes vector in a hazard
 	int node1_index;

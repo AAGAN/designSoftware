@@ -60,6 +60,8 @@ protected:
 
 	double estimated_flow_rate;
 
+	std::vector<int> nozzle_indecies;
+
 public:
 	//enclosure();
 	~enclosure();
@@ -90,6 +92,8 @@ public:
 		double cupBurnerValue
 		
 	);//!< Concstructor
+
+	int get_id() { return id; }
 
 	std::string get_name() { return enclosure_name; }
 
@@ -134,7 +138,6 @@ public:
 	bool get_nozzle_option() { return nozzle_option; }
 
 	int get_hazard_id() { return hazardId; }
-	int get_id() { return id; }
 
 	double get_o2_concentration() { return o2_concentration; }
 	double get_co2_concentration() { return co2_concentration; }
@@ -144,4 +147,8 @@ public:
 	double get_altitude_correction_factor(double Altitude);//!< calculates and return the altitude_correction_factor based on the "altitude" table in "database.db"
 	void set_altitude_correction_factor(double cor_factor) { altitude_correction_factor = cor_factor; }
 	double get_altitude_correction_factor() { return altitude_correction_factor; }
+
+	void add_nozzle_index(int ind) { nozzle_indecies.push_back(ind); }
+	int number_of_nozzles() { return nozzle_indecies.size(); }
+
 };
