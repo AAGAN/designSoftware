@@ -62,7 +62,7 @@ Step 7 of the system manual
 */
 double hazard::calcMinTotalInergenVol()
 {
-	minTotalInergenVolReq = 0;// *cubic_meters;
+	minTotalInergenVolReq = 0.0;// *cubic_meters;
 	if (enclosures.size() != numEnclosures)
 		std::cout << "Error calculating totalInergenReq" << std::endl;
 	for (auto& enc : enclosures)
@@ -156,9 +156,6 @@ void hazard::update_pipe_network()
 	}
 
 	set_pipe_length();
-	
-	output_data("c:\\output.txt");
-
 	assign_initial_flow_rates(sTime);
 
 	/*for (auto& nd : nodes)
