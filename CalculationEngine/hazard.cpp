@@ -86,7 +86,7 @@ void hazard::assign_o2_co2_concentration()
 void hazard::output_data(std::string filename)
 {
 	std::ofstream outputfile;
-	outputfile.open(filename);
+	outputfile.open(filename, std::ios::trunc);
 	outputfile << "Enclosures: " << std::endl;
 	outputfile << "ID , net volume , est flow rate" << std::endl;
 	for (auto& enc : enclosures)
@@ -156,6 +156,9 @@ void hazard::update_pipe_network()
 	}
 
 	set_pipe_length();
+	
+	output_data("c:\\output.txt");
+
 	assign_initial_flow_rates(sTime);
 
 	/*for (auto& nd : nodes)
@@ -163,7 +166,7 @@ void hazard::update_pipe_network()
 		nd.set_equivalent_length()
 	}*/
 
-	output_data("C:\\output.txt");
+	output_data("c:\\output.txt");
 }
 
 /**
@@ -487,7 +490,7 @@ void hazard::assign_initial_flow_rates(double sTime)
 			double mass_flow_rate_outlet_1 = pipes[nodes[current_tee].get_pipe2_index()].get_mass_flow_rate();
 			double mass_flow_rate_outlet_2 = pipes[nodes[current_tee].get_pipe3_index()].get_mass_flow_rate();
 			//if both of the outlets have values and the inlet doesn't have a value then
-			if (mass_flow_rate_outlet_1 != 0.0 || mass_flow_rate_outlet_2 != 0.0 || mass_flow_rate_inlet == 0.0)
+			if (mass_flow_rate_outlet_1 != 0.0 && mass_flow_rate_outlet_2 != 0.0 && mass_flow_rate_inlet == 0.0)
 			{
 				pipes_with_no_flow_rate = true;
 
