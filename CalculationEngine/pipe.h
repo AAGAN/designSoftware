@@ -65,6 +65,7 @@ protected:
 
 	double internal_diameter;
 
+	double total_length;
 	
 	
 public:
@@ -114,6 +115,8 @@ public:
 
 	std::string get_type() { return type; }
 
+	void calculate_total_length(double equivalentLength);
+
 	int calculate_pressure_drop();
 	void set_p1(double p) { p1 = p; }
 	void set_p2(double p) { p2 = p; }
@@ -148,4 +151,5 @@ public:
 
 	void set_mass_flow_rate(double MFR) { massFlowRate = MFR; }
 	double get_mass_flow_rate() { return massFlowRate; }
+
 };

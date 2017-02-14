@@ -42,10 +42,20 @@ pipe::pipe
 }
 
 /**
+calculates the total length of the pipe = physical length + eqivalent length of the 
+node upstream of the pipe
+*/
+void pipe::calculate_total_length(double equivLength)
+{
+	total_length = pipe_length + equivLength;
+}
+
+/**
 calculates the pressure drop starting from p1 (pressure at node1)
 */
 int pipe::calculate_pressure_drop()
 {
+
 	return 0;
 }
 

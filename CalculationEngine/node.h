@@ -50,6 +50,9 @@ protected:
 	double dynamic_pressure;
 	double static_pressure;
 
+	double equivalent_length_1; //!<equivalent length in 1st direction
+	double equivalent_length_2; //!<equivalent length in 2nd direction (only for tees)
+
 public:
 	node();
 	~node();
@@ -103,10 +106,7 @@ public:
 
 	int update_hydraulics(hazard& Haz);
 
-	double equivalent_length_1; //!<equivalent length in 1st direction
-	double equivalent_length_2; //!<equivalent length in 2nd direction (only for tees)
-
-	int set_equivalent_length(double, std::string);
+	int set_equivalent_length(double);
 
 	double calculate_nozzle_mass_flow_rate(double sTime);
 
@@ -119,4 +119,7 @@ public:
 
 	void set_required_quantity(double reqQ) { required_gas_quantity = reqQ; }
 	void set_supplied_quantity(double supQ) { supplied_gas_quantity = supQ; }
+
+	double get_equivalent_length_1() { return equivalent_length_1; }
+	double get_equivalent_length_2() { return equivalent_length_2; }
 };

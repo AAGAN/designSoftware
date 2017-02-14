@@ -100,9 +100,9 @@ Coupling: 5 * ID
 ----------------------------------------
 Standard eq. length of 90s is halved per request of customer 21/12/2009
 */
-int node::set_equivalent_length(double internal_diameter, std::string Type)
+int node::set_equivalent_length(double internal_diameter)
 {
-	if(Type == "Elbow")//the node's type should be used instead!
+	if(type == "Elbow")//the node's type should be used instead!
 	{
 		if (connection_type == 1)
 		{
@@ -115,7 +115,7 @@ int node::set_equivalent_length(double internal_diameter, std::string Type)
 			equivalent_length_2 = 0;// *meters;
 		}
 	}
-	else if (Type == "Bull Tee")
+	else if (type == "Bull Tee")
 	{
 		if (connection_type == 1)
 		{
@@ -128,7 +128,7 @@ int node::set_equivalent_length(double internal_diameter, std::string Type)
 			equivalent_length_2 = 0.5 * 16.0 * internal_diameter;
 		}
 	}
-	else if (Type == "Side Tee")
+	else if (type == "Side Tee")
 	{
 		if (connection_type == 1)
 		{
@@ -141,7 +141,7 @@ int node::set_equivalent_length(double internal_diameter, std::string Type)
 			equivalent_length_2 = 40.0 * internal_diameter;
 		}
 	}
-	else if (Type == "Coupling")
+	else if (type == "Coupling")
 	{
 		equivalent_length_1 = 5.0 * internal_diameter;
 		equivalent_length_2 = 0.0 * internal_diameter;

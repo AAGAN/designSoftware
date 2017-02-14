@@ -534,3 +534,26 @@ void hazard::assign_pipe_sizes_based_on_max_flow_rate()
 		}
 	}
 }
+
+/**
+assigns the total length of the pipe with pipe index of pipeIndex
+*/
+void hazard::assign_total_length(int pipeIndex)
+{
+	double equivalent_length = 0.0;
+	int upstream_node_index = pipes[pipeIndex].get_node1_index();
+	//set the equivalent length of the node based on the internal diameter 
+	//of the pipe downstream of the node
+	nodes[upstream_node_index].set_equivalent_length(pipes[pipeIndex].get_diameter());
+	//when node is a tee, there are two equivalent lengths, when elbow or coupling, only the first
+	//equivalent length is used and the next one is ignored.
+	//depending on which side of the tee the pipe is connected to, calculate the equivalent length
+	if (nodes[upstream_node_index].get_pipe2_index() == pipes[pipeIndex].index)
+	{
+		pipes[pipeIndex].calculate_total_length(nodes[upstream_node_index].get_equivalent_length_1());
+	}
+	else if (nodes[upstream_node_index].get_pipe3_index() == pipes[pipeIndex].index)
+	{
+		pipes[pipeIndex].calculate_total_length(nodes[upstream_node_index].get_equivalent_length_2());
+	}
+}
