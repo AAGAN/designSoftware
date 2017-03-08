@@ -60,12 +60,13 @@ protected:
 	//diameter at each end of the pipe, these two are always the same!
 	double diameter;
 	
-
 	double massFlowRate;
 
 	double internal_diameter;
 
 	double total_length;
+	
+	double pressure_drop;
 	
 	
 public:
@@ -78,9 +79,6 @@ public:
 
 	//index of the pipe in the pipes vector of a hazard
 	int index;
-
-	double p1; //pressure at the beginneing
-	double p2; //pressure at the end
 
 	//if true, the user has defined and fixed the size of the pipe
 	bool user_defined_size;
@@ -116,10 +114,17 @@ public:
 	std::string get_type() { return type; }
 
 	void calculate_total_length(double equivalentLength);
-
-	int calculate_pressure_drop();
-	void set_p1(double p) { p1 = p; }
-	void set_p2(double p) { p2 = p; }
+	
+	int calculate_pressure_drop
+	(
+		double gamma, 
+		int method, //1=adiabatic 0=isothermal
+		double T1, 
+		double P1, 
+		double roughness,
+		double gas_constant,
+		double V1
+	);
 
 	static int addPipeSizeData
 	(
@@ -152,4 +157,12 @@ public:
 	void set_mass_flow_rate(double MFR) { massFlowRate = MFR; }
 	double get_mass_flow_rate() { return massFlowRate; }
 
+	double get_pressure_drop() { return pressure_drop; }
+
+	static double isothermal_function(double M1, double M2, double gamma, double f, double D, double L);
+	static double d_dm_isothermal_function(double gamma, double M2);
+	static double adiabatic_function(double M1, double M2, double gamma, double f, double D, double L);
+	static double d_dm_adiabatic_function(double gamma, double M2);
+
+	int Newton_raphson(double (*f)(double, double, double, double, double, double), double (*f_prime) (double, double), double guess, double error, double& result, int max_num_itterations, double M1, double gamma, double friction_factor);
 };

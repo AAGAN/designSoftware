@@ -73,9 +73,9 @@ int node::update_hydraulics(hazard& Haz)
 	//calculate pressureDrop1
 	//calculate PressureDrop2
 
-	Haz.pipes[pipe2id].set_p1(Haz.pipes[pipe1id].p2 - pressureDrop1);
+	/*Haz.pipes[pipe2id].set_p1(Haz.pipes[pipe1id].p2 - pressureDrop1);
 	if (type == "Bull Tee" || type == "Side Tee")
-		Haz.pipes[pipe3id].set_p1(Haz.pipes[pipe1id].p2 - pressureDrop2);
+		Haz.pipes[pipe3id].set_p1(Haz.pipes[pipe1id].p2 - pressureDrop2);*/
 
 	//calculate and assign the flow (mass flow rate) at the beginning of the 
 	//next pipes based on the mass flow rate at the end of the previous

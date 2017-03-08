@@ -8,8 +8,6 @@
 #include <node.h>
 #include <fstream>
 
-
-
 /**
 this class defines the hazards which may include many enclosures. 
 Each hazard is protected by all the cylinders. 
