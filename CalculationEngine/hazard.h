@@ -67,4 +67,5 @@ private:
 	void assign_initial_flow_rates(double sTime);
 	void assign_pipe_sizes_based_on_max_flow_rate();
 	void assign_total_length(int pipeIndex);
+	void calculate_pressure_drop(double sTime);
 };

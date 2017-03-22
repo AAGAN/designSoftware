@@ -122,4 +122,11 @@ public:
 
 	double get_equivalent_length_1() { return equivalent_length_1; }
 	double get_equivalent_length_2() { return equivalent_length_2; }
+
+	double get_static_pressure() { return static_pressure; }
+	void set_static_pressure(double staticPressure) { static_pressure = staticPressure; }
+	double get_static_temperature() { return static_temperature; }
+	void set_static_temperature(double staticTemperature) { static_temperature = staticTemperature; }
+	double get_density() { return density; }
+	void set_density(double Density) { density = Density; }
 };

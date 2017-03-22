@@ -15,6 +15,25 @@ struct HAZARD
 	double supplied_agent_volume; //!< based on the calculated number of cylinders
 };
 
+//structure to save the pressure recession test data for cylinders
+struct cylinder_data
+{
+	int percent_remaining;
+	double temperature;
+	double pressure;
+	double density;
+};
+
+//structure to define the gas properties
+struct gas
+{
+	std::string name;
+	double Cp; //!< specific heat at constant pressure
+	double Cv; //!< specific heat at constant volume
+	double Gamma; //!< gamma = Cp / Cv
+	double MW; //!< molecular weight
+	double R; //!< gas constant J / (kg*K)
+};
 
 /**
 structure for retreiving an enclosure's calculated information

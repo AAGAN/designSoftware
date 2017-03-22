@@ -1,6 +1,11 @@
 #include "hazard.h"
+#include "dll.h"
 
+//defined in dll.cpp
 extern bool NFPA2001;
+//defined in dll.cpp
+extern struct cylinder_data cylinderData[11];
+extern struct gas Agent;
 double sTime = 60.0; //just for now before adding a loop to itterate over sTime
 
 hazard::hazard()
@@ -556,4 +561,74 @@ void hazard::assign_total_length(int pipeIndex)
 	{
 		pipes[pipeIndex].calculate_total_length(nodes[upstream_node_index].get_equivalent_length_2());
 	}
+}
+
+void hazard::calculate_pressure_drop(double sTime)
+{
+	// find the manifold outlet among the nodes of the piping structure of this hazard
+	int manifold_outlet_index;
+	for (unsigned int i = 0; i < nodes.size(); i++)
+	{
+		if (nodes[i].get_type() == "Manifold Outlet")
+		{
+			manifold_outlet_index = i;
+			break;
+		}
+	}
+	double maximum_MFR = pipes[nodes[manifold_outlet_index].get_pipe2_index()].get_mass_flow_rate();
+	double storage_pressure = cylinderData[10].pressure; // the pressure recession data is in the dll.h and dll.cpp files
+	double storage_temperature = cylinderData[10].temperature; //10 indicates the full cylinder condition (100% full)
+	double storage_density = cylinderData[10].density;
+	double specific_heat_ratio = Agent.Gamma;
+	double gas_constant = Agent.R;
+	nodes[manifold_outlet_index].calculate_manifold_pressure(maximum_MFR, numContainers, storage_pressure, storage_temperature, storage_density, specific_heat_ratio);
+
+	std::vector<int> tees_remaining;
+	int current_node_index = manifold_outlet_index;
+	int current_pipe_index = nodes[current_node_index].get_pipe2_index();
+	double T_1 = nodes[current_node_index].get_static_temperature();
+	double P_1 = nodes[current_node_index].get_static_pressure();
+	double V_1 = maximum_MFR / nodes[current_node_index].get_density() / pipes[nodes[manifold_outlet_index].get_pipe2_index()].get_diameter();
+	int method = 1; //0 for isothermal and 1 for adiabatic
+	double roughness = 0.00005;
+
+	do
+	{
+		double pressure_drop = pipes[current_pipe_index].calculate_pressure_drop(specific_heat_ratio, method, T_1, P_1, roughness, gas_constant, V_1);
+		double current_node_pressure = nodes[current_node_index].get_static_pressure() - pressure_drop;
+		nodes[pipes[current_pipe_index].get_node2_index()].set_static_pressure(current_node_pressure);
+		double current_node_temperature = storage_temperature*pow(current_node_pressure / storage_pressure, (specific_heat_ratio - 1.0) / specific_heat_ratio);
+		nodes[pipes[current_pipe_index].get_node2_index()].set_static_temperature(current_node_temperature);
+		double current_node_density = current_node_pressure / current_node_temperature / gas_constant;
+		nodes[pipes[current_pipe_index].get_node2_index()].set_density(current_node_density);
+		
+		current_node_index = pipes[current_pipe_index].get_node2_index();
+		std::string current_node_type = nodes[current_node_index].get_type();
+
+		if (current_node_type == "Nozzle")
+		{
+			if (tees_remaining.size() == 0)
+			{
+				break;	
+			}
+			else
+			{
+				current_node_index = tees_remaining.back();
+				current_pipe_index = nodes[current_node_index].get_pipe3_index();
+				current_node_index = pipes[current_node_index].get_node2_index();
+				tees_remaining.pop_back();
+			}
+		}
+		else if (current_node_type == "Bull Tee" || current_node_type == "Side Tee")
+		{
+			tees_remaining.push_back(current_node_index);
+			current_pipe_index = nodes[current_node_index].get_pipe1_index();
+			current_node_index = pipes[current_pipe_index].get_node2_index();
+		}
+		else
+		{
+			current_pipe_index = nodes[current_node_index].get_pipe2_index();
+			current_node_index = pipes[current_pipe_index].get_node2_index();
+		}
+	} while (true);
 }

@@ -167,7 +167,7 @@ double node::calculate_nozzle_mass_flow_rate(double sTime)
 }
 
 /**
-calculates the manifold pressure
+calculates manifold's pressure
 */
 double node::calculate_manifold_pressure(double maxMassFlowRate, int numberOfCylinders, double storagePressure,double storageTemperature,double storageDensity, double specificHeatRatio)
 {

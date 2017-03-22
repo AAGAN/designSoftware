@@ -1,7 +1,7 @@
-#include "dll.h"
 #include <iostream>
 #include <stdlib.h>
 #include <vector>
+#include "dll.h"
 #include "enclosure.h"
 #include "hazard.h"
 #include "node.h"
@@ -25,24 +25,10 @@ std::vector<pData> pipe::pipeData;
 std::vector<vData> pipe::valveData;
 
 //structure to define the gas properties
-struct gas
-{
-	std::string name;
-	double Cp; //!< specific heat at constant pressure
-	double Cv; //!< specific heat at constant volume
-	double Gamma; //!< gamma = Cp / Cv
-	double MW; //!< molecular weight
-	double R; //!< gas constant J / (kg*K)
-}Agent;
+struct gas Agent;
 
 //structure to save the pressure recession test data for cylinders
-struct cylinder_data
-{
-	int percent_remaining;
-	double temperature;
-	double pressure;
-	double density;
-}cylinderData[11];
+struct cylinder_data cylinderData[11];
 
 /**
 calculate_density is a global function that calculates the density of an inert gas (with specified heat_capacity_ratio)
