@@ -6,7 +6,7 @@ extern bool NFPA2001;
 //defined in dll.cpp
 extern struct cylinder_data cylinderData[11];
 extern struct gas Agent;
-double sTime = 60.0; //just for now before adding a loop to itterate over sTime
+//double sTime = 60.0; //just for now before adding a loop to itterate over sTime
 
 hazard::hazard()
 {
@@ -29,6 +29,7 @@ hazard::hazard(
 	containerVolSize(bottleVol),
 	//enclosures(Enclosures),
 	discharge_time(dischargeTime),
+	sTime(dischargeTime),
 	numContainers(0),
 	minTotalInergenVolReq(0),// * cubic_meters),
 	suppliedInergenVol(0),// * cubic_meters),
@@ -161,12 +162,23 @@ void hazard::update_pipe_network()
 	}
 
 	set_pipe_length();
-	assign_initial_flow_rates(sTime);
+	calculate_stime();
+	assign_initial_flow_rates();
 
-	/*for (auto& nd : nodes)
+	for (auto& pp : pipes)
 	{
-		nd.set_equivalent_length()
-	}*/
+		assign_total_length(pp.index);
+	}
+	
+	for (auto& nd : nodes)
+	{
+		if (nd.get_type() == "Manifold Outlet")
+		{
+			double max_MFR = pipes[nd.get_pipe2_index()].get_mass_flow_rate();
+			nd.calculate_manifold_pressure(max_MFR, numContainers, cylinderData[10].pressure, cylinderData[10].temperature, cylinderData[10].density, Agent.Gamma);
+		}
+	}
+	calculate_pressure_drop();
 
 	output_data("c:\\output.txt");
 }
@@ -382,7 +394,7 @@ void hazard::info()
 /**
 assigns mass flow rates to all pipes and nodes based on the required gas quantity from nozzles
 */
-void hazard::assign_initial_flow_rates(double sTime)
+void hazard::assign_initial_flow_rates()
 {
 	//set the mass flow rate for all the pipes to zero
 	for (unsigned int i = 0; i < pipes.size(); i++)
@@ -563,7 +575,7 @@ void hazard::assign_total_length(int pipeIndex)
 	}
 }
 
-void hazard::calculate_pressure_drop(double sTime)
+void hazard::calculate_pressure_drop()
 {
 	// find the manifold outlet among the nodes of the piping structure of this hazard
 	int manifold_outlet_index;
@@ -631,4 +643,15 @@ void hazard::calculate_pressure_drop(double sTime)
 			current_node_index = pipes[current_pipe_index].get_node2_index();
 		}
 	} while (true);
+}
+
+void hazard::calculate_stime()
+{
+	double stempSingle = 95.0 * minTotalInergenVolReq / numContainers / containerVolSize;
+	stempSingle = 0.00074956*pow(stempSingle, 2.0) - 0.18112756*stempSingle + 11.56569296;
+	sTime = 34 * stempSingle*discharge_time / 60.0;
+	if (sTime > discharge_time)
+	{
+		sTime = discharge_time * 34 / 60;
+	}
 }

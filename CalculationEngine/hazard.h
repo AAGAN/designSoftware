@@ -46,6 +46,7 @@ private:
 	int numEnclosures;
 	double estimated_system_flow_rate;
 	double discharge_time;
+	double sTime;
 	
 	//-----------------------------------------------------------------------------------
 	// functions for the gas quantity calculations
@@ -64,8 +65,9 @@ private:
 	
 	//----------------------------------------------------------------------------------
 	// functions for the hydraulic calculations
-	void assign_initial_flow_rates(double sTime);
+	void assign_initial_flow_rates();
 	void assign_pipe_sizes_based_on_max_flow_rate();
 	void assign_total_length(int pipeIndex);
-	void calculate_pressure_drop(double sTime);
+	void calculate_pressure_drop();
+	void calculate_stime();
 };
