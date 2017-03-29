@@ -164,7 +164,7 @@ void hazard::update_pipe_network()
 	set_pipe_length();
 	calculate_stime();
 	assign_initial_flow_rates();
-
+	assign_pipe_sizes_based_on_max_flow_rate();
 	for (auto& pp : pipes)
 	{
 		assign_total_length(pp.index);
@@ -176,6 +176,7 @@ void hazard::update_pipe_network()
 		{
 			double max_MFR = pipes[nd.get_pipe2_index()].get_mass_flow_rate();
 			nd.calculate_manifold_pressure(max_MFR, numContainers, cylinderData[10].pressure, cylinderData[10].temperature, cylinderData[10].density, Agent.Gamma);
+			break;
 		}
 	}
 	calculate_pressure_drop();
@@ -538,7 +539,7 @@ void hazard::assign_pipe_sizes_based_on_max_flow_rate()
 {
 	for (auto& pp : pipes)
 	{
-		if (!pp.user_defined_size)
+		if (!pp.user_defined_size && pp.get_type() != "Manifold")
 		{
 			for (auto& pip : pipe::pipeData)
 			{

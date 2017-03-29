@@ -100,8 +100,8 @@ public:
 	int get_schedule() { return schedule; }
 	void set_schedule(int sch) { schedule = sch; }
 
-	void set_diameter(double diam) { diameter = diam; }
-	double get_diameter() { return diameter; }
+	void set_diameter(double diam) { internal_diameter = diam; }
+	double get_diameter() { return internal_diameter; }
 
 	double get_length() { return pipe_length; }
 	void set_pipe_length(double lng) { pipe_length = lng; }
