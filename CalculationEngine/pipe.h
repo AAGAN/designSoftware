@@ -67,6 +67,7 @@ protected:
 	double total_length;
 	
 	double pressure_drop;
+	double temperature_drop;
 	
 	
 public:
@@ -158,6 +159,7 @@ public:
 	double get_mass_flow_rate() { return massFlowRate; }
 
 	double get_pressure_drop() { return pressure_drop; }
+	double get_temperature_drop() { return temperature_drop; }
 
 	static double isothermal_function(double M1, double M2, double gamma, double f, double D, double L);
 	static double d_dm_isothermal_function(double gamma, double M2);

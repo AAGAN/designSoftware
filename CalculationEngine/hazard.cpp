@@ -601,16 +601,18 @@ void hazard::calculate_pressure_drop()
 	int current_pipe_index = nodes[current_node_index].get_pipe2_index();
 	double T_1 = nodes[current_node_index].get_static_temperature();
 	double P_1 = nodes[current_node_index].get_static_pressure();
-	double V_1 = maximum_MFR / nodes[current_node_index].get_density() / pipes[nodes[manifold_outlet_index].get_pipe2_index()].get_diameter();
+	double V_1 = maximum_MFR / nodes[current_node_index].get_density() / pipes[current_pipe_index].get_diameter();
 	int method = 1; //0 for isothermal and 1 for adiabatic
 	double roughness = 0.00005;
 
 	do
 	{
-		double pressure_drop = pipes[current_pipe_index].calculate_pressure_drop(specific_heat_ratio, method, T_1, P_1, roughness, gas_constant, V_1);
+		pipes[current_pipe_index].calculate_pressure_drop(specific_heat_ratio, method, T_1, P_1, roughness, gas_constant, V_1);
+		double pressure_drop = pipes[current_pipe_index].get_pressure_drop();
 		double current_node_pressure = nodes[current_node_index].get_static_pressure() - pressure_drop;
 		nodes[pipes[current_pipe_index].get_node2_index()].set_static_pressure(current_node_pressure);
-		double current_node_temperature = storage_temperature*pow(current_node_pressure / storage_pressure, (specific_heat_ratio - 1.0) / specific_heat_ratio);
+		double temperature_drop = pipes[current_pipe_index].get_temperature_drop();//storage_temperature*pow(current_node_pressure / storage_pressure, (specific_heat_ratio - 1.0) / specific_heat_ratio);
+		double current_node_temperature = nodes[current_node_index].get_static_temperature() - temperature_drop;
 		nodes[pipes[current_pipe_index].get_node2_index()].set_static_temperature(current_node_temperature);
 		double current_node_density = current_node_pressure / current_node_temperature / gas_constant;
 		nodes[pipes[current_pipe_index].get_node2_index()].set_density(current_node_density);
@@ -628,7 +630,7 @@ void hazard::calculate_pressure_drop()
 			{
 				current_node_index = tees_remaining.back();
 				current_pipe_index = nodes[current_node_index].get_pipe3_index();
-				current_node_index = pipes[current_node_index].get_node2_index();
+				//current_node_index = pipes[current_node_index].get_node2_index();
 				tees_remaining.pop_back();
 			}
 		}
@@ -636,12 +638,12 @@ void hazard::calculate_pressure_drop()
 		{
 			tees_remaining.push_back(current_node_index);
 			current_pipe_index = nodes[current_node_index].get_pipe1_index();
-			current_node_index = pipes[current_pipe_index].get_node2_index();
+			//current_node_index = pipes[current_pipe_index].get_node2_index();
 		}
 		else
 		{
 			current_pipe_index = nodes[current_node_index].get_pipe2_index();
-			current_node_index = pipes[current_pipe_index].get_node2_index();
+			//current_node_index = pipes[current_pipe_index].get_node2_index();
 		}
 	} while (true);
 }

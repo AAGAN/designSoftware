@@ -87,19 +87,13 @@ int pipe::calculate_pressure_drop
 		function = adiabatic_function;
 		derivative = d_dm_adiabatic_function;
 	}
-	double Mach2 = 0.05;
+	double Mach2 = 0.001;
 	Newton_raphson(function, derivative, Mach2, 0.00001, Mach2, 20, Mach1, gamma, friction_factor);
-	//double Re = pow(10, 7);// ro * V * D / mu Reynolds number
-	//double e = 0.00005; // absolute roughness of the surface in meters
-	//double eOverD = e/internal_diameter; // relative roughness
-	//double f = 0.25*pow(log10(eOverD/3.7+5.74/pow(Re,0.9)), -2.0);//page 361 of Fox
-	//double elevation_change = 0; //meters
-	//double pi = 3.1415;//should be added as global variable
-	//double density = 1.0; //should be calculated
-	//double average_velocity = massFlowRate / (pi*pow(diameter, 2.0) / 4.0) / density;
-	//double head_loss = f*total_length / diameter / 2.0*pow(average_velocity, 2.0);
-
-	double pressure_drop = 0;
+	
+	double T2 = T1 * (1 + (gamma - 1) / 2.0*pow(Mach1, 2.0)) / (1 + (gamma - 1) / 2.0*pow(Mach2, 2.0));
+	temperature_drop = T2 - T1;
+	double P2 = P1 * sqrt((pow(Mach1,2.0)*(1+(gamma-1)/1.0*pow(Mach1,2.0))) / (pow(Mach2, 2.0)*(1 + (gamma - 1) / 1.0*pow(Mach2, 2.0))));
+	pressure_drop = P2 - P1;
 	return 0;
 }
 
@@ -223,7 +217,8 @@ int pipe::Newton_raphson(double(*f)(double, double, double, double,double,double
 	{
 		double fprime = f_prime(gamma, guess);
 		if (fprime == 0.0) return 2;
-		result = guess-f(M1,guess,gamma,friction_factor, internal_diameter, total_length)/fprime;
+		double func = f(M1, guess, gamma, friction_factor, internal_diameter, total_length);
+		result = guess - func / fprime;
 		err = abs(result - guess);
 		guess = result;
 		num_itterations++;
