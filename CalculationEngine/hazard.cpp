@@ -1,5 +1,6 @@
 #include "hazard.h"
 #include "dll.h"
+#include <iomanip>
 
 //defined in dll.cpp
 extern bool NFPA2001;
@@ -92,20 +93,25 @@ void hazard::assign_o2_co2_concentration()
 void hazard::output_data(std::string filename)
 {
 	std::ofstream outputfile;
+	outputfile << std::fixed << std::setprecision(10);
 	outputfile.open(filename, std::ios::trunc);
 	outputfile << "Enclosures: " << std::endl;
 	outputfile << "ID , net volume , est flow rate" << std::endl;
 	for (auto& enc : enclosures)
 		outputfile << enc.get_id() << "," << enc.get_net_volume() << "," << enc.get_estimated_flow_rate() << std::endl;
 	outputfile << "Pipes: " << std::endl;
-	outputfile << "ID , type , node1 ID , node2ID , node1 , node2, length, mass flow rate" << std::endl;
+	outputfile << "ID , type , node1 ID , node2ID , node1 , node2, length, mass flow rate, pressure drop, temperature drop" << std::endl;
 	for (auto& pp : pipes)
-		outputfile << pp.get_id() << "," << pp.get_type() << "," << pp.node1id << "," << pp.node2id << "," << pp.get_node1_index() << "," << pp.get_node2_index() << "," << pp.get_length() << "," << pp.get_mass_flow_rate() << std::endl;
+		outputfile << pp.get_id() << "," << pp.get_type() << "," << pp.node1id << "," << pp.node2id << "," << pp.get_node1_index() <<
+		"," << pp.get_node2_index() << "," << pp.get_length() << "," << pp.get_mass_flow_rate() << "," << pp.get_pressure_drop() <<
+		"," << pp.get_temperature_drop() << std::endl;
 	outputfile << "Nodes: " << std::endl;
-	outputfile << " ID , type ,  x , y , z ,pipe1 ID , pipe2 ID , pipe3 ID , pipe1 , pipe2 , pipe3 , nozzle mass flow rate" << std::endl;
+	outputfile << " ID , type ,  x , y , z ,pipe1 ID , pipe2 ID , pipe3 ID , pipe1 , pipe2 , pipe3 , nozzle mass flow rate , static pressure , static temperature , density" << std::endl;
 	for (auto& nd : nodes)
 		outputfile << nd.get_id() << "," << nd.get_type() << "," << nd.get_x() << "," << nd.get_y() << "," << nd.get_z() << "," << 
-		nd.pipe1id << "," << nd.pipe2id << "," << nd.pipe3id << "," << nd.get_pipe1_index() << "," << nd.get_pipe2_index() << "," << nd.get_pipe3_index() << "," << nd.calculate_nozzle_mass_flow_rate(60.0) << std::endl;
+		nd.pipe1id << "," << nd.pipe2id << "," << nd.pipe3id << "," << nd.get_pipe1_index() << "," << nd.get_pipe2_index() << "," << 
+		nd.get_pipe3_index() << "," << nd.calculate_nozzle_mass_flow_rate(sTime) << "," << nd.get_static_pressure() << "," <<
+		nd.get_static_temperature() << "," << nd.get_density() << std::endl;
 	outputfile.close();
 }
 
@@ -170,15 +176,6 @@ void hazard::update_pipe_network()
 		assign_total_length(pp.index);
 	}
 	
-	for (auto& nd : nodes)
-	{
-		if (nd.get_type() == "Manifold Outlet")
-		{
-			double max_MFR = pipes[nd.get_pipe2_index()].get_mass_flow_rate();
-			nd.calculate_manifold_pressure(max_MFR, numContainers, cylinderData[10].pressure, cylinderData[10].temperature, cylinderData[10].density, Agent.Gamma);
-			break;
-		}
-	}
 	calculate_pressure_drop();
 
 	output_data("c:\\output.txt");
@@ -584,6 +581,8 @@ void hazard::calculate_pressure_drop()
 	{
 		if (nodes[i].get_type() == "Manifold Outlet")
 		{
+			double max_MFR = pipes[nodes[i].get_pipe2_index()].get_mass_flow_rate();
+			nodes[i].calculate_manifold_pressure(max_MFR, numContainers, cylinderData[10].pressure, cylinderData[10].temperature, cylinderData[10].density, Agent.Gamma);
 			manifold_outlet_index = i;
 			break;
 		}
@@ -637,7 +636,7 @@ void hazard::calculate_pressure_drop()
 		else if (current_node_type == "Bull Tee" || current_node_type == "Side Tee")
 		{
 			tees_remaining.push_back(current_node_index);
-			current_pipe_index = nodes[current_node_index].get_pipe1_index();
+			current_pipe_index = nodes[current_node_index].get_pipe2_index();
 			//current_node_index = pipes[current_pipe_index].get_node2_index();
 		}
 		else

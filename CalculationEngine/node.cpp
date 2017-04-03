@@ -192,6 +192,7 @@ double node::calculate_manifold_pressure(double maxMassFlowRate, int numberOfCyl
 	static_pressure = manifoldPressure * 6895.0; // 1 psi = 6895 Pa
 	density = calculate_density(static_pressure, specificHeatRatio, storagePressure, storageDensity);
 	static_temperature = calculate_temperature(static_pressure, storagePressure, storageTemperature, specificHeatRatio);
+	
 	return static_pressure;
 }
 
@@ -211,7 +212,7 @@ density based on pressure and storage density
 */
 double node::calculate_density(double staticPressure, double specificHeatRatio, double storagePressure, double storageDensity)
 {
-	return density = storageDensity * pow(storagePressure / staticPressure, (1 - 2 * specificHeatRatio) / specificHeatRatio);
+	return density = storageDensity * pow(staticPressure / storagePressure, 1 / specificHeatRatio);
 }
 
 /**

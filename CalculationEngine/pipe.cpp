@@ -88,12 +88,12 @@ int pipe::calculate_pressure_drop
 		derivative = d_dm_adiabatic_function;
 	}
 	double Mach2 = 0.001;
-	Newton_raphson(function, derivative, Mach2, 0.00001, Mach2, 20, Mach1, gamma, friction_factor);
+	Newton_raphson(function, derivative, Mach2, 0.000000001, Mach2, 20, Mach1, gamma, friction_factor);
 	
 	double T2 = T1 * (1 + (gamma - 1) / 2.0*pow(Mach1, 2.0)) / (1 + (gamma - 1) / 2.0*pow(Mach2, 2.0));
-	temperature_drop = T2 - T1;
+	temperature_drop = T1 - T2;
 	double P2 = P1 * sqrt((pow(Mach1,2.0)*(1+(gamma-1)/1.0*pow(Mach1,2.0))) / (pow(Mach2, 2.0)*(1 + (gamma - 1) / 1.0*pow(Mach2, 2.0))));
-	pressure_drop = P2 - P1;
+	pressure_drop = P1 - P2;
 	return 0;
 }
 
@@ -222,7 +222,7 @@ int pipe::Newton_raphson(double(*f)(double, double, double, double,double,double
 		err = abs(result - guess);
 		guess = result;
 		num_itterations++;
-	} while (err > error || num_itterations<max_num_itterations);
+	} while (err > error && num_itterations < max_num_itterations);
 	if (num_itterations == max_num_itterations) return 1;
 	return 0;
 }
