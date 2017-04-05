@@ -168,5 +168,7 @@ public:
 	static double adiabatic_function(double M1, double M2, double gamma, double f, double D, double L);
 	static double d_dm_adiabatic_function(double gamma, double M2);
 
+	double calculate_pipe_volume() { return 3.141593*pow(internal_diameter, 2.0) / 4.0 * pipe_length; }
+
 	int Newton_raphson(double (*f)(double, double, double, double, double, double), double (*f_prime) (double, double), double guess, double error, double& result, int max_num_itterations, double M1, double gamma, double friction_factor);
 };

@@ -70,4 +70,5 @@ private:
 	void assign_total_length(int pipeIndex);
 	void calculate_pressure_drop();
 	void calculate_stime();
+	double calculate_total_pipe_volume();
 };

@@ -100,10 +100,11 @@ void hazard::output_data(std::string filename)
 	for (auto& enc : enclosures)
 		outputfile << enc.get_id() << "," << enc.get_net_volume() << "," << enc.get_estimated_flow_rate() << std::endl;
 	outputfile << "Pipes: " << std::endl;
-	outputfile << "ID , type , node1 ID , node2ID , node1 , node2, internal diameter, length, total length, mass flow rate, pressure drop, temperature drop" << std::endl;
+	outputfile << "total pipe volume , " << calculate_total_pipe_volume() << std::endl;
+	outputfile << "ID , type , node1 ID , node2ID , node1 , node2, internal diameter, length, total length, pipe volume, mass flow rate, pressure drop, temperature drop" << std::endl;
 	for (auto& pp : pipes)
 		outputfile << pp.get_id() << "," << pp.get_type() << "," << pp.node1id << "," << pp.node2id << "," << pp.get_node1_index() <<
-		"," << pp.get_node2_index() << "," << pp.get_diameter() << "," << pp.get_length() << "," << pp.get_total_length() << "," << pp.get_mass_flow_rate() << "," << pp.get_pressure_drop() <<
+		"," << pp.get_node2_index() << "," << pp.get_diameter() << "," << pp.get_length() << "," << pp.get_total_length() << "," << pp.calculate_pipe_volume() << "," << pp.get_mass_flow_rate() << "," << pp.get_pressure_drop() <<
 		"," << pp.get_temperature_drop() << std::endl;
 	outputfile << "Nodes: " << std::endl;
 	outputfile << " ID , type ,  x , y , z ,pipe1 ID , pipe2 ID , pipe3 ID , pipe1 , pipe2 , pipe3 , nozzle mass flow rate, equivalent length 1, equivalent length 2, static pressure , static temperature , density" << std::endl;
@@ -661,4 +662,14 @@ void hazard::calculate_stime()
 	{
 		sTime = discharge_time * 34 / 60;
 	}
+}
+
+double hazard::calculate_total_pipe_volume()
+{
+	double total_pipe_volume = 0.0;
+	for (auto& pp : pipes)
+	{
+		total_pipe_volume = total_pipe_volume + pp.calculate_pipe_volume();
+	}
+	return total_pipe_volume;
 }
