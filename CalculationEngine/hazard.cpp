@@ -107,6 +107,7 @@ void hazard::output_data(std::string filename)
 		"," << pp.get_node2_index() << "," << pp.get_diameter() << "," << pp.get_length() << "," << pp.get_total_length() << "," << pp.calculate_pipe_volume() << "," << pp.get_mass_flow_rate() << "," << pp.get_pressure_drop() <<
 		"," << pp.get_temperature_drop() << std::endl;
 	outputfile << "Nodes: " << std::endl;
+	outputfile << "Maximum pressure, " << get_maximum_pressure() << std::endl;
 	outputfile << " ID , type ,  x , y , z ,pipe1 ID , pipe2 ID , pipe3 ID , pipe1 , pipe2 , pipe3 , nozzle mass flow rate, equivalent length 1, equivalent length 2, static pressure , static temperature , density" << std::endl;
 	for (auto& nd : nodes)
 	{
@@ -664,6 +665,10 @@ void hazard::calculate_stime()
 	}
 }
 
+/**
+total pipe volume is important because there are UL/FM limits on the ratio of the gas inside 
+the tank to the volume of the pipes.
+*/
 double hazard::calculate_total_pipe_volume()
 {
 	double total_pipe_volume = 0.0;
@@ -672,4 +677,28 @@ double hazard::calculate_total_pipe_volume()
 		total_pipe_volume = total_pipe_volume + pp.calculate_pipe_volume();
 	}
 	return total_pipe_volume;
+}
+
+/**
+calculates the maximum pressure to be reported to the user to make 
+sure that the piping system can handle the pressure after the manifold
+*/
+double hazard::get_maximum_pressure()
+{
+	double manifold_pressure = 0.0;
+	for (auto& nd : nodes)
+	{
+		if (nd.get_type() == "Manifold Outlet")
+			manifold_pressure = nd.get_static_pressure();
+	}
+	//1.5 is just a factor of safety found through experiments
+	maximum_pressure = 1.5 * manifold_pressure; //pressures more than 1500 psi has never been observed so this is just a check to limit the calculated pressure
+	if (maximum_pressure > 10342135.939753)
+		maximum_pressure = 10342135.939753;
+	return maximum_pressure;
+}
+
+double hazard::calculate_95percent_discharge_time()
+{
+	return 0.0;
 }

@@ -47,6 +47,8 @@ private:
 	double estimated_system_flow_rate;
 	double discharge_time;
 	double sTime;
+	double maximum_pressure;
+	double ninety_five_percent_discharge_time;
 	
 	//-----------------------------------------------------------------------------------
 	// functions for the gas quantity calculations
@@ -71,4 +73,6 @@ private:
 	void calculate_pressure_drop();
 	void calculate_stime();
 	double calculate_total_pipe_volume();
+	double get_maximum_pressure();
+	double calculate_95percent_discharge_time();
 };
