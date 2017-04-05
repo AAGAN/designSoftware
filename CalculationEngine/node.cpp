@@ -58,8 +58,16 @@ node::node
 	default:
 		break;
 	}
-	pressureDrop1 = 0;// *pascals;
-	pressureDrop2 = 0;// *pascals;
+	//pressureDrop1 = 0;// *pascals;
+	//pressureDrop2 = 0;// *pascals;
+	density = 0.0;
+	static_pressure = 0.0;
+	static_temperature = 0.0;
+	equivalent_length_1 = 0.0;
+	equivalent_length_2 = 0.0;
+	pipe1_index = 0;
+	pipe2_index = 0;
+	pipe3_index = 0;
 }
 
 /**
@@ -68,8 +76,8 @@ from the end of the input pipe and assigns the
 calculated pressure(s) to the beginning of the pipe(s) connected
 to the node
 */
-int node::update_hydraulics(hazard& Haz)
-{
+//int node::update_hydraulics(hazard& Haz)
+//{
 	//calculate pressureDrop1
 	//calculate PressureDrop2
 
@@ -81,8 +89,8 @@ int node::update_hydraulics(hazard& Haz)
 	//next pipes based on the mass flow rate at the end of the previous
 	//pipe
 
-	return 0;
-}
+//	return 0;
+//}
 
 /**
 ----------------------------------------

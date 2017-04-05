@@ -107,6 +107,8 @@ public:
 	double get_length() { return pipe_length; }
 	void set_pipe_length(double lng) { pipe_length = lng; }
 	
+	double get_total_length() { return total_length; }
+
 	void add_node1_index(int nd1) { node1_index = nd1; }
 	int get_node1_index() { return node1_index; }
 	void add_node2_index(int nd2) { node2_index = nd2; }

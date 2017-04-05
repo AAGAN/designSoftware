@@ -39,6 +39,10 @@ pipe::pipe
 	//pipe size can be fixed by the user, the code to add this capability is not added yet
 	//for now all pipes sizes are going to be changed by the calculation engine
 	user_defined_size = false;
+	internal_diameter = 0.0;
+	total_length = 0.0;
+	pressure_drop = 0.0;
+	temperature_drop = 0.0;
 }
 
 /**
@@ -52,6 +56,7 @@ void pipe::calculate_total_length(double equivLength)
 
 /**
 calculates the pressure drop starting from p1 (pressure at node1)
+returns -1 if the length of the pipe is too long (more than Lmax)
 */
 int pipe::calculate_pressure_drop
 (
@@ -81,6 +86,10 @@ int pipe::calculate_pressure_drop
 	{
 		function = adiabatic_function;
 		derivative = d_dm_adiabatic_function;
+		double Lmax;
+		double fanno = (1 - pow(Mach1, 2.0)) / gamma / pow(Mach1, 2.0) + (gamma + 1) / 2.0 / gamma*log(pow(Mach1, 2.0)*(gamma + 1.0) / 2.0 / (1 + (gamma - 1.0) / 2.0*pow(Mach1, 2.0)));
+		Lmax = internal_diameter / 4.0 / friction_factor * fanno;
+		if (total_length >= Lmax) return -1;
 	}
 	else
 	{

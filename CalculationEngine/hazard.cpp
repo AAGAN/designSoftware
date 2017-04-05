@@ -100,18 +100,23 @@ void hazard::output_data(std::string filename)
 	for (auto& enc : enclosures)
 		outputfile << enc.get_id() << "," << enc.get_net_volume() << "," << enc.get_estimated_flow_rate() << std::endl;
 	outputfile << "Pipes: " << std::endl;
-	outputfile << "ID , type , node1 ID , node2ID , node1 , node2, length, mass flow rate, pressure drop, temperature drop" << std::endl;
+	outputfile << "ID , type , node1 ID , node2ID , node1 , node2, internal diameter, length, total length, mass flow rate, pressure drop, temperature drop" << std::endl;
 	for (auto& pp : pipes)
 		outputfile << pp.get_id() << "," << pp.get_type() << "," << pp.node1id << "," << pp.node2id << "," << pp.get_node1_index() <<
-		"," << pp.get_node2_index() << "," << pp.get_length() << "," << pp.get_mass_flow_rate() << "," << pp.get_pressure_drop() <<
+		"," << pp.get_node2_index() << "," << pp.get_diameter() << "," << pp.get_length() << "," << pp.get_total_length() << "," << pp.get_mass_flow_rate() << "," << pp.get_pressure_drop() <<
 		"," << pp.get_temperature_drop() << std::endl;
 	outputfile << "Nodes: " << std::endl;
-	outputfile << " ID , type ,  x , y , z ,pipe1 ID , pipe2 ID , pipe3 ID , pipe1 , pipe2 , pipe3 , nozzle mass flow rate , static pressure , static temperature , density" << std::endl;
+	outputfile << " ID , type ,  x , y , z ,pipe1 ID , pipe2 ID , pipe3 ID , pipe1 , pipe2 , pipe3 , nozzle mass flow rate, equivalent length 1, equivalent length 2, static pressure , static temperature , density" << std::endl;
 	for (auto& nd : nodes)
-		outputfile << nd.get_id() << "," << nd.get_type() << "," << nd.get_x() << "," << nd.get_y() << "," << nd.get_z() << "," << 
-		nd.pipe1id << "," << nd.pipe2id << "," << nd.pipe3id << "," << nd.get_pipe1_index() << "," << nd.get_pipe2_index() << "," << 
-		nd.get_pipe3_index() << "," << nd.calculate_nozzle_mass_flow_rate(sTime) << "," << nd.get_static_pressure() << "," <<
-		nd.get_static_temperature() << "," << nd.get_density() << std::endl;
+	{
+		double nozMFR = 0.0;
+		if (nd.get_type() == "Nozzle") nozMFR = nd.calculate_nozzle_mass_flow_rate(sTime);
+		outputfile << nd.get_id() << "," << nd.get_type() << "," << nd.get_x() << "," << nd.get_y() << "," << nd.get_z() << "," <<
+			nd.pipe1id << "," << nd.pipe2id << "," << nd.pipe3id << "," << nd.get_pipe1_index() << "," << nd.get_pipe2_index() << "," <<
+			nd.get_pipe3_index() << "," << nozMFR << "," << nd.get_equivalent_length_1() << "," << nd.get_equivalent_length_2() << "," << nd.get_static_pressure() << "," <<
+			nd.get_static_temperature() << "," << nd.get_density() << std::endl;
+	}
+		
 	outputfile.close();
 }
 

@@ -42,12 +42,12 @@ protected:
 	double required_gas_quantity; //!< only for nozzles
 	double supplied_gas_quantity; //!< only for nozzles
 
-	double pressureDrop1; //!< pressure drop across the node (if tee, pressure drop across input and first side)
-	double pressureDrop2; //!< pressure drop across the node (if not tee then 0, if tee, pressure drop across input and second side or through)
+	//double pressureDrop1; //!< pressure drop across the node (if tee, pressure drop across input and first side)
+	//double pressureDrop2; //!< pressure drop across the node (if not tee then 0, if tee, pressure drop across input and second side or through)
 
 	double density;
 	double static_temperature;
-	double dynamic_pressure;
+	//double dynamic_pressure;
 	double static_pressure;
 
 	double equivalent_length_1; //!<equivalent length in 1st direction
@@ -104,7 +104,7 @@ public:
 	void set_type(std::string tp) { tp = type; }
 	std::string get_type() { return type; }
 
-	int update_hydraulics(hazard& Haz);
+	//int update_hydraulics(hazard& Haz);
 
 	int set_equivalent_length(double);
 
