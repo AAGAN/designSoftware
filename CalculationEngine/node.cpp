@@ -231,3 +231,72 @@ double node::calculate_temperature(double staticPressure, double storagePressure
 	static_temperature = storageTemperature*pow((staticPressure/storagePressure),(specificHeatRatio-1)/specificHeatRatio);
 	return static_temperature;
 }
+
+/**
+this function uses the iterative scheme of Annex A Page 19 of ISO 5167-1:2003(E)
+and uses the previously calculated pressure drop and mass flow rate and pipe diameter to 
+calculate the orifice diameter
+there are some limitations for this method mentioned in the ISO 5167 standard
+  P2/P1 >= 0.75 for the expansibility factor to be accurate
+  d >= 12.5 mm
+  50 mm <= D <= 1000 mm
+  0.1 <= beta <= 0.75
+  ReD >= 5000 for 0.1 <= beta <= 0.56
+  ReD >= 16000*beta^2 for beta > 0.56
+*/
+void node::calculate_orifice_diameter(double D1, double qm, double gas_constant, double specific_heat_ratio)
+{
+	double C = 0.606; // first guess
+	double E = 0.97; //first guess
+	double L1 = 0; //for corner tapping -- L1 = 1 for D tapping -- L1 = l1 / D
+	double L2 = 0;  // for corner tapping -- L2 = 0.47 for D/2 tapping -- L2 = l2 / D
+	double p2 = 100000; //1 bar atmospheric pressure = 100000 pascals
+	double viscosity = 1.458*pow(10, -6)*pow(static_temperature, 1.5) / (static_temperature + 110.4);
+	double ReD = 4 * qm / 3.1415927 / viscosity / D1;
+	double deltaP = static_pressure - p2; //1 bar atmospheric pressure = 100000 pascals
+	double A2 = viscosity * ReD / D1 / sqrt(2.0 * deltaP * density);
+	double X2 = A2 / C / E; //X_n-2
+	double delta2 = abs(A2 - X2*C*E); //d_n-2
+	double precision_criterion = abs((A2 - X2 * C * E) / A2);
+	double d = D1 * pow(pow(X2, 2.0) / (1 + pow(X2, 2.0)), 0.25);
+	double beta = d / D1;
+	double A = pow(19000 * beta / ReD, 0.8);
+	double M2 = 2 * L2 / (1 - beta);
+	C = 0.5961 + 0.0261 * pow(beta, 2.0) - 0.216 * pow(beta, 8.0) + 0.000521*pow(pow(10, 6.0)*beta / ReD, 0.7) +
+		(0.0188 + 0.0063*A)*pow(beta, 3.5)*pow(pow(10, 6.0) / ReD, 0.3) + (0.043 + 0.080*pow(2.718282, -10.0*L1) -
+			0.123*pow(2.718282, -7.0*L1)*(1 - 0.11*A)*pow(beta, 4.0) / (1 - pow(beta, 4.0)) -
+			0.031*(M2 - 0.8*pow(M2, 1.1))*pow(beta, 1.3));
+	if (D1 > 0.07112) C = C + 0.011*(0.75 - beta)*(2.8 - D1 / 25.4);
+	E = 1 - (0.351 + 0.256*pow(beta, 4.0) + 0.93*pow(beta, 8.0))*(1 - pow(p2 / static_pressure, 1 / specific_heat_ratio));
+
+	int num_iterations = 0; //preventing endless loop
+	while (precision_criterion > 0.000001 && num_iterations < 100) //n = 6
+	{
+		num_iterations++;
+		double X3 = A2 / C / E; // X_n-1
+		double delta3 = abs(A2 - X3*C*E); // d_n-1
+
+		double d = D1 * pow(pow(X3, 2.0) / (1 + pow(X3, 2.0)), 0.25);
+		double beta = d / D1;
+		double A = pow(19000 * beta / ReD, 0.8);
+		double M2 = 2 * L2 / (1 - beta);
+		C = 0.5961 + 0.0261 * pow(beta, 2.0) - 0.216 * pow(beta, 8.0) + 0.000521*pow(pow(10, 6.0)*beta / ReD, 0.7) +
+			(0.0188 + 0.0063*A)*pow(beta, 3.5)*pow(pow(10, 6.0) / ReD, 0.3) + (0.043 + 0.080*pow(2.718282, -10.0*L1) -
+				0.123*pow(2.718282, -7.0*L1)*(1 - 0.11*A)*pow(beta, 4.0) / (1 - pow(beta, 4.0)) -
+				0.031*(M2 - 0.8*pow(M2, 1.1))*pow(beta, 1.3));
+		if (D1 > 0.07112) C = C + 0.011*(0.75 - beta)*(2.8 - D1 / 25.4);
+		E = 1 - (0.351 + 0.256*pow(beta, 4.0) + 0.93*pow(beta, 8.0))*(1 - pow(p2 / static_pressure, 1 / specific_heat_ratio));
+		double temp = X3;
+		X3 = X3 - delta3*((X3 - X2) / (delta3 - delta2)); //calculating X_n
+		X2 = temp;
+		precision_criterion = abs((A2 - X2 * C * E) / A2);
+	}
+	if (num_iterations < 100 && d > 0.0 && d < D1) //just checking!
+	{
+		orifice_diameter = d;
+	}
+	else
+	{
+		orifice_diameter = -1;
+	}
+}

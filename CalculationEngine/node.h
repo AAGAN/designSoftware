@@ -129,4 +129,6 @@ public:
 	void set_static_temperature(double staticTemperature) { static_temperature = staticTemperature; }
 	double get_density() { return density; }
 	void set_density(double Density) { density = Density; }
+
+	void calculate_orifice_diameter(double D1, double qm, double gas_constant, double specific_heat_ratio);
 };

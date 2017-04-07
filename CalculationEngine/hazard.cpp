@@ -700,5 +700,6 @@ double hazard::get_maximum_pressure()
 
 double hazard::calculate_95percent_discharge_time()
 {
+
 	return 0.0;
 }
