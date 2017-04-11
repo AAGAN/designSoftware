@@ -75,4 +75,5 @@ private:
 	double calculate_total_pipe_volume();
 	double get_maximum_pressure();
 	double calculate_95percent_discharge_time();
+	void calculate_orifice_diameter();
 };

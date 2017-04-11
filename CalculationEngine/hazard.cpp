@@ -96,6 +96,7 @@ void hazard::output_data(std::string filename)
 	outputfile << std::fixed << std::setprecision(10);
 	outputfile.open(filename, std::ios::trunc);
 	outputfile << "Enclosures: " << std::endl;
+	outputfile << "Time to discharge 95 percent: ," << calculate_95percent_discharge_time() << std::endl;
 	outputfile << "ID , net volume , est flow rate" << std::endl;
 	for (auto& enc : enclosures)
 		outputfile << enc.get_id() << "," << enc.get_net_volume() << "," << enc.get_estimated_flow_rate() << std::endl;
@@ -108,15 +109,17 @@ void hazard::output_data(std::string filename)
 		"," << pp.get_temperature_drop() << std::endl;
 	outputfile << "Nodes: " << std::endl;
 	outputfile << "Maximum pressure, " << get_maximum_pressure() << std::endl;
-	outputfile << " ID , type ,  x , y , z ,pipe1 ID , pipe2 ID , pipe3 ID , pipe1 , pipe2 , pipe3 , nozzle mass flow rate, equivalent length 1, equivalent length 2, static pressure , static temperature , density" << std::endl;
+	outputfile << " ID , type ,  x , y , z ,pipe1 ID , pipe2 ID , pipe3 ID , pipe1 , pipe2 , pipe3 , nozzle mass flow rate, equivalent length 1, equivalent length 2, static pressure , static temperature , density, connecting pipe diameter, orifice diameter" << std::endl;
 	for (auto& nd : nodes)
 	{
 		double nozMFR = 0.0;
 		if (nd.get_type() == "Nozzle") nozMFR = nd.calculate_nozzle_mass_flow_rate(sTime);
+		double connecting_pipe_diameter = 0.0;
+		if (nd.get_type() != "Manifold Outlet") connecting_pipe_diameter = pipes[nd.get_pipe1_index()].get_diameter();
 		outputfile << nd.get_id() << "," << nd.get_type() << "," << nd.get_x() << "," << nd.get_y() << "," << nd.get_z() << "," <<
 			nd.pipe1id << "," << nd.pipe2id << "," << nd.pipe3id << "," << nd.get_pipe1_index() << "," << nd.get_pipe2_index() << "," <<
 			nd.get_pipe3_index() << "," << nozMFR << "," << nd.get_equivalent_length_1() << "," << nd.get_equivalent_length_2() << "," << nd.get_static_pressure() << "," <<
-			nd.get_static_temperature() << "," << nd.get_density() << std::endl;
+			nd.get_static_temperature() << "," << nd.get_density() << "," << connecting_pipe_diameter << "," << nd.get_orifice_diameter() <<std::endl;
 	}
 		
 	outputfile.close();
@@ -184,6 +187,10 @@ void hazard::update_pipe_network()
 	}
 	
 	calculate_pressure_drop();
+
+	calculate_orifice_diameter();
+
+	calculate_95percent_discharge_time();
 
 	output_data("c:\\output.txt");
 }
@@ -700,6 +707,65 @@ double hazard::get_maximum_pressure()
 
 double hazard::calculate_95percent_discharge_time()
 {
+	double manifold_pressure;
+	double sqmax;
+	for (auto& nd : nodes)
+	{
+		if (nd.get_type() == "Manifold Outlet")
+		{
+			manifold_pressure = nd.get_static_pressure();
+			sqmax = pipes[nd.get_pipe2_index()].get_mass_flow_rate() * 2.205; //kg/s to lb/s check it ***********************
+			break;
+		}
+	}
+	double vTime[11] = {};
+	double sRegulatorPSI = manifold_pressure * 6894.75729; //converting Pa to psi
+	double ipStorage = 4300; //pressure of the storage, from tom's software
+	double stemp = 1 - sRegulatorPSI / ipStorage;
+	double stempSingle = int( 10 * stemp );
+	int iNumCylinders = numContainers;
+	double sWeightPerCyl = containerVolSize * 35.315; // cubic meter to cubic feet
+	double TiMet = 0.0;
 
-	return 0.0;
+	for (int i = 1; i < stempSingle + 1; i++)
+	{
+		vTime[i] = 0.1 * i * iNumCylinders * sWeightPerCyl / (sqmax / 0.0884);
+	}
+	double fortyTime = 0.4 * iNumCylinders * sWeightPerCyl / (sqmax / 0.0884);
+	stempSingle = 18.559 * std::pow(fortyTime, -0.495);
+	if (stempSingle < 4.1) stempSingle = 4.1;
+	double NinetyFivePercentWeightTime = (1.1368 * std::pow(fortyTime, -0.067) * 0.9 * stempSingle * fortyTime);
+	vTime[9] = NinetyFivePercentWeightTime;
+
+	if (NinetyFivePercentWeightTime<60 && sRegulatorPSI == 550)
+	{
+		if (NinetyFivePercentWeightTime < 56.35) NinetyFivePercentWeightTime = NinetyFivePercentWeightTime + 5.0;
+		TiMet = NinetyFivePercentWeightTime;
+	}
+	else
+	{
+		TiMet = -0.00007 * std::pow(NinetyFivePercentWeightTime, 2.0) + 0.0202 * NinetyFivePercentWeightTime + 0.18;
+		if (TiMet > 1.36) TiMet = 1.36;
+		if (NinetyFivePercentWeightTime > 200) TiMet = 1.36;
+		NinetyFivePercentWeightTime = TiMet * NinetyFivePercentWeightTime;
+		TiMet = NinetyFivePercentWeightTime;
+	}
+
+	return NinetyFivePercentWeightTime;
+}
+
+/**
+calculates the orifice diameter for all the nozzles in the hazard
+*/
+void hazard::calculate_orifice_diameter()
+{
+	for (auto& nd : nodes)
+	{
+		if (nd.get_type() == "Nozzle")
+		{
+			double diameter_of_connecting_pipe = pipes[nd.get_pipe1_index()].get_diameter();
+			double flow_rate_of_connecting_pipe = pipes[nd.get_pipe1_index()].get_mass_flow_rate();
+			nd.calculate_orifice_diameter(diameter_of_connecting_pipe, flow_rate_of_connecting_pipe, Agent.R, Agent.Gamma);
+		}
+	}
 }

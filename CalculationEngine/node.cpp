@@ -68,6 +68,7 @@ node::node
 	pipe1_index = 0;
 	pipe2_index = 0;
 	pipe3_index = 0;
+	orifice_diameter = 0.0;
 }
 
 /**
@@ -270,7 +271,7 @@ void node::calculate_orifice_diameter(double D1, double qm, double gas_constant,
 	E = 1 - (0.351 + 0.256*pow(beta, 4.0) + 0.93*pow(beta, 8.0))*(1 - pow(p2 / static_pressure, 1 / specific_heat_ratio));
 
 	int num_iterations = 0; //preventing endless loop
-	while (precision_criterion > 0.000001 && num_iterations < 100) //n = 6
+	while (precision_criterion > 10e-10 && num_iterations < 100 && d > D1) //n = 6
 	{
 		num_iterations++;
 		double X3 = A2 / C / E; // X_n-1
@@ -288,6 +289,7 @@ void node::calculate_orifice_diameter(double D1, double qm, double gas_constant,
 		E = 1 - (0.351 + 0.256*pow(beta, 4.0) + 0.93*pow(beta, 8.0))*(1 - pow(p2 / static_pressure, 1 / specific_heat_ratio));
 		double temp = X3;
 		X3 = X3 - delta3*((X3 - X2) / (delta3 - delta2)); //calculating X_n
+		delta2 = delta3;
 		X2 = temp;
 		precision_criterion = abs((A2 - X2 * C * E) / A2);
 	}
