@@ -36,6 +36,18 @@ public:
 	void set_discharge_time(double dis_time) { discharge_time = dis_time; }
 	void update_pipe_network();
 	
+	//----------------------------------------------------------------------------------
+	// functions for the hydraulic calculations
+	void assign_initial_flow_rates();
+	void assign_pipe_sizes_based_on_max_flow_rate();
+	void assign_total_length(int pipeIndex);
+	void calculate_pressure_drop();
+	void calculate_stime();
+	double calculate_total_pipe_volume();
+	double get_maximum_pressure();
+	double calculate_95percent_discharge_time();
+	void calculate_orifice_diameter();
+
 private:
 	std::string name;
 	int id;	
@@ -65,15 +77,5 @@ private:
 	void output_data(std::string filename);
 	void set_pipe_length();
 	
-	//----------------------------------------------------------------------------------
-	// functions for the hydraulic calculations
-	void assign_initial_flow_rates();
-	void assign_pipe_sizes_based_on_max_flow_rate();
-	void assign_total_length(int pipeIndex);
-	void calculate_pressure_drop();
-	void calculate_stime();
-	double calculate_total_pipe_volume();
-	double get_maximum_pressure();
-	double calculate_95percent_discharge_time();
-	void calculate_orifice_diameter();
+
 };

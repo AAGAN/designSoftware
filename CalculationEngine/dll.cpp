@@ -452,6 +452,13 @@ int __stdcall get_pipe_info
 					out->length = pp.get_length();// .value();
 					out->pipe_id = pp.get_id();
 					out->hazard_id = hazard_id;
+					out->schedule = pp.get_schedule();
+					out->internal_diameter = pp.get_diameter();
+					out->mass_flow_rate = pp.get_mass_flow_rate();
+					out->pipe_volume = pp.calculate_pipe_volume();
+					out->pressure_drop = pp.get_pressure_drop();
+					out->temperature_drop = pp.get_temperature_drop();
+					out->total_length = pp.get_total_length();
 					return 0;
 				}
 	return -1;
@@ -474,9 +481,34 @@ int __stdcall get_node_info
 					out->orifice_diameter = nd.get_orifice_diameter();// .value();
 					out->node_id = nd.get_id();
 					out->hazard_id = hazard_id;
+					out->equivalent_length_1 = nd.get_equivalent_length_1();
+					out->equivalent_length_2 = nd.get_equivalent_length_2();
+					out->static_pressure = nd.get_static_pressure();
+					out->static_temperature = nd.get_static_temperature();
+					out->density = nd.get_density();
 					return 0;
 				}
 	return 0;
+}
+
+int __stdcall get_hydraulics_results
+(
+	int hazardID, 
+	results* out
+)
+{
+	*out = results{};
+	for (auto& haz : hazards)
+	{
+		if (haz.get_id() == hazardID)
+		{
+			out->maximum_pressure = haz.get_maximum_pressure();
+			out->pipe_volume_to_cylinder_volume = haz.calculate_total_pipe_volume() / haz.get_supplied_agent_volume();
+			out->time_to_95_percent_discharge = haz.calculate_95percent_discharge_time();
+			return 0;
+		}
+	}
+	return -1; //if hazard couldn't be found
 }
 
 int __stdcall add_node(

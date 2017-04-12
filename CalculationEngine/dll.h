@@ -64,8 +64,15 @@ struct PIPE
 {
 	int pipe_id;
 	int hazard_id;
-	double length;
-	int connection_type;
+	double length; //meters
+	int connection_type; // threaded = 1, welded = 2
+	int schedule; // 1 = 40 or 2 = 80
+	int internal_diameter; //meters
+	int mass_flow_rate; //kg/s
+	double total_length; //length + equivalent length of the previous node
+	double pressure_drop; // pascals
+	double temperature_drop; //celcius
+	double pipe_volume;
 };
 
 /**
@@ -75,8 +82,25 @@ struct NODE
 {
 	int node_id;
 	int hazard_id;
-	double orifice_diameter;
+	double orifice_diameter; //if this node is a nozzle, otherwise it's zero
 	int connection_type;
+	double equivalent_length_1;
+	double equivalent_length_2; //if this node is a tee
+	double density; // kg/m^3
+	double static_pressure; // Pa
+	double static_temperature; // K
+
+};
+
+/**
+structure for passing the overall results of the hydraulics calculations
+and the warnings and error messages
+*/
+struct results
+{
+	double time_to_95_percent_discharge;
+	double pipe_volume_to_cylinder_volume;
+	double maximum_pressure; // this is to report to the user for pipe strength decision purposes
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -202,6 +226,15 @@ extern "C" int __stdcall get_node_info
 	int node_id,
 	int hazard_id,
 	NODE* out
+);
+
+/**
+returns a "results" structure with the results of hydraulics calculations
+*/
+extern "C" int __stdcall get_hydraulics_results
+(
+	int hazard_id,
+	results* out
 );
 
 /**
