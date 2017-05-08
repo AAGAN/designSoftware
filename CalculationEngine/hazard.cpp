@@ -183,7 +183,8 @@ void hazard::update_pipe_network()
 	assign_pipe_sizes_based_on_max_flow_rate();
 	for (auto& pp : pipes)
 	{
-		assign_total_length(pp.index);
+		if(pp.get_type() != "Manifold")
+			assign_total_length(pp.index);
 	}
 	
 	calculate_pressure_drop();
@@ -557,6 +558,7 @@ void hazard::assign_pipe_sizes_based_on_max_flow_rate()
 				if (pip.schedule == pp.get_schedule() &&  pip.maxFlowRate > pp.get_mass_flow_rate())
 				{
 					pp.set_diameter(pip.internalDiameter);
+					pp.set_nominal_size(pip.nominalSize);
 					break;
 				}
 			}

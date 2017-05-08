@@ -15,11 +15,11 @@ pipe::pipe
 	int Type, 
 	int Node1id, 
 	int Node2id, 
-	double Diameter,
+	double Diameter, //internal diameter
 	int connectionType,
 	int Schedule
 )
-:id(Id),node1id(Node1id),node2id(Node2id),diameter(Diameter),connection_type(connectionType),schedule(Schedule)
+:id(Id),node1id(Node1id),node2id(Node2id),internal_diameter(Diameter),connection_type(connectionType),schedule(Schedule)
 {
 	switch (Type)
 	{
@@ -39,8 +39,8 @@ pipe::pipe
 	//pipe size can be fixed by the user, the code to add this capability is not added yet
 	//for now all pipes sizes are going to be changed by the calculation engine
 	user_defined_size = false;
-	internal_diameter = 0.0;
 	total_length = 0.0;
+	diameter = 0.0; //nominal size 
 	pressure_drop = 0.0;
 	temperature_drop = 0.0;
 }
@@ -55,7 +55,9 @@ void pipe::calculate_total_length(double equivLength)
 }
 
 /**
+using the fanno line process, this function
 calculates the pressure drop starting from p1 (pressure at node1)
+this function ignores elevation change (good for ideal gasses)
 returns -1 if the length of the pipe is too long (more than Lmax)
 */
 int pipe::calculate_pressure_drop
@@ -103,6 +105,25 @@ int pipe::calculate_pressure_drop
 	temperature_drop = T1 - T2;
 	double P2 = P1 * sqrt((pow(Mach1,2.0)*(1+(gamma-1)/1.0*pow(Mach1,2.0))) / (pow(Mach2, 2.0)*(1 + (gamma - 1) / 1.0*pow(Mach2, 2.0))));
 	pressure_drop = P1 - P2;
+	return 0;
+}
+
+/**
+using the NFPA12A or Hessens or GSI or Energy equation method, this function
+calculates the pressure drop starting from p1 (pressure at node1) 
+this function can handle the elevation head (good for liquified agents)
+returns -1 if the length of the pipe is too long (more than Lmax)
+*/
+int pipe::calculate_pressure_drop
+(
+	double Z1,
+	double Z2,
+	double MFR,
+	double Density1,
+	double P1,
+	double T1
+)
+{
 	return 0;
 }
 

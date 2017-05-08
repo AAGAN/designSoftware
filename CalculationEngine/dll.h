@@ -67,12 +67,13 @@ struct PIPE
 	double length; //meters
 	int connection_type; // threaded = 1, welded = 2
 	int schedule; // 1 = 40 or 2 = 80
-	int internal_diameter; //meters
-	int mass_flow_rate; //kg/s
+	double internal_diameter; //meters
+	double mass_flow_rate; //kg/s
 	double total_length; //length + equivalent length of the previous node
 	double pressure_drop; // pascals
 	double temperature_drop; //celcius
 	double pipe_volume;
+	double nominal_size; //nominal diameter of the pipe in meters
 };
 
 /**
@@ -98,6 +99,7 @@ and the warnings and error messages
 */
 struct results
 {
+	int hazard_id;
 	double time_to_95_percent_discharge;
 	double pipe_volume_to_cylinder_volume;
 	double maximum_pressure; // this is to report to the user for pipe strength decision purposes
@@ -231,11 +233,11 @@ extern "C" int __stdcall get_node_info
 /**
 returns a "results" structure with the results of hydraulics calculations
 */
-extern "C" int __stdcall get_hydraulics_results
-(
-	int hazard_id,
-	results* out
-);
+//extern "C" int __stdcall get_hydraulics_results
+//(
+//	int hazard_id,
+//	results* out
+//);
 
 /**
 This function adds a node to a hazard
@@ -290,6 +292,9 @@ SHOULD BE ABLE TO DESIGNATE THE PIPES WITH FIX SIZES
 0- straight pipe
 1- valve (needs pressure coefficient)
 2- manifold section
+
+GUI passes only the internal diameter of the pipes to defines the topology
+the nominal sizes of the pipes are in the database pipeData
 */
 extern "C" int __stdcall add_pipe
 (
@@ -298,7 +303,7 @@ extern "C" int __stdcall add_pipe
 	int type = 0, //0,1 or 2
 	int node1_id = 0,
 	int node2_id = 0,
-	double diameter1 = 0.0, //!< diameter of the pipe
+	double diameter1 = 0.0, //!< internal diameter of the pipe
 	int connection_type = 1, //threaded = 1, welded = 2
 	int schedule_id = 1 //schedule40 = 1, schedule80 = 2 (as input by user)
 );
@@ -316,7 +321,8 @@ should be called after all the nodes and pipes were added
 */
 extern "C" int __stdcall update_pipe_network
 (
-	int hazard_id
+	int hazard_id,
+	results* out
 );
 
 /**

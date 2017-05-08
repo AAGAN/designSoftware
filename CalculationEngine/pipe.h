@@ -36,7 +36,8 @@ struct vData
 	a pipe can be any of the following types:
 
 	0- straight pipe
-	1- valve (needs pressure coefficient)
+    1- valve (needs pressure coefficient)
+    2- manifold section
 */
 class node;
 class pipe
@@ -57,8 +58,8 @@ protected:
 
 	double pipe_length;
 	
-	//diameter at each end of the pipe, these two are always the same!
-	double diameter;
+	
+	double diameter; //this is the nimonal size
 	
 	double massFlowRate;
 
@@ -101,6 +102,9 @@ public:
 	int get_schedule() { return schedule; }
 	void set_schedule(int sch) { schedule = sch; }
 
+	void set_nominal_size(double nomSize) { diameter = nomSize; }
+	double get_nominal_size() { return diameter; }
+
 	void set_diameter(double diam) { internal_diameter = diam; }
 	double get_diameter() { return internal_diameter; }
 
@@ -127,6 +131,16 @@ public:
 		double roughness,
 		double gas_constant,
 		double V1
+	);
+
+	int calculate_pressure_drop
+	(
+		double Z1,
+		double Z2,
+		double MFR,
+		double Density1,
+		double P1,
+		double T1
 	);
 
 	static int addPipeSizeData
