@@ -151,4 +151,6 @@ public:
 	void add_nozzle_index(int ind) { nozzle_indecies.push_back(ind); }
 	int number_of_nozzles() { return nozzle_indecies.size(); }
 
+	void reset_nozzle_indecies() { nozzle_indecies.clear(); }
+
 };

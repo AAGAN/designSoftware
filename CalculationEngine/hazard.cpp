@@ -721,7 +721,7 @@ double hazard::calculate_95percent_discharge_time()
 		}
 	}
 	double vTime[11] = {};
-	double sRegulatorPSI = manifold_pressure * 6894.75729; //converting Pa to psi
+	double sRegulatorPSI = manifold_pressure / 6894.75729; //converting Pa to psi
 	double ipStorage = 4300; //pressure of the storage, from tom's software
 	double stemp = 1 - sRegulatorPSI / ipStorage;
 	double stempSingle = int( 10 * stemp );
@@ -752,7 +752,7 @@ double hazard::calculate_95percent_discharge_time()
 		NinetyFivePercentWeightTime = TiMet * NinetyFivePercentWeightTime;
 		TiMet = NinetyFivePercentWeightTime;
 	}
-
+	ninety_five_percent_discharge_time = NinetyFivePercentWeightTime;
 	return NinetyFivePercentWeightTime;
 }
 
@@ -770,4 +770,18 @@ void hazard::calculate_orifice_diameter()
 			nd.calculate_orifice_diameter(diameter_of_connecting_pipe, flow_rate_of_connecting_pipe, Agent.R, Agent.Gamma);
 		}
 	}
+}
+
+/**
+resets the properties of the hazard that are calculated after the hydraulic calculation
+is done. these are time to 95 percent discharge and maximum pressure , etc.
+everytime a new calculation is performed, this funciton should be called before adding the
+pipes and nodes to the hazard. this function is being called from the reset_network function
+of the dll
+*/
+void hazard::reset_hydraulic_calculations()
+{
+	ninety_five_percent_discharge_time = 0.0;
+	maximum_pressure = 0.0;
+
 }

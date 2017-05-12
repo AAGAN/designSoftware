@@ -47,6 +47,7 @@ public:
 	double get_maximum_pressure();
 	double calculate_95percent_discharge_time();
 	void calculate_orifice_diameter();
+	void reset_hydraulic_calculations();
 
 private:
 	std::string name;
@@ -77,5 +78,4 @@ private:
 	void output_data(std::string filename);
 	void set_pipe_length();
 	
-
 };

@@ -667,6 +667,9 @@ int __stdcall reset_network
 		{
 			haz.nodes.clear();
 			haz.pipes.clear();
+			for (auto& enc : haz.enclosures)
+				enc.reset_nozzle_indecies();
+			haz.reset_hydraulic_calculations();
 			break;
 		}
 	return 0;
