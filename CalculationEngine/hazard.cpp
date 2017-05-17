@@ -177,6 +177,16 @@ void hazard::update_pipe_network()
 		}
 	}
 
+	for (auto& nd : nodes)
+	{
+		if (nd.get_type() == "Manifold Outlet")
+		{
+			if (nd.pipe3id != 0)
+				nd.add_pipe2_index(nd.get_pipe3_index());
+			break;
+		}
+	}
+
 	set_pipe_length();
 	calculate_stime();
 	assign_initial_flow_rates();
@@ -452,12 +462,13 @@ void hazard::assign_initial_flow_rates()
 
 	// find all the tees in the piping structure of this hazard
 	std::vector<int> tee_indecies;
-	for (unsigned int i = 0; i < nodes.size() ; i++)
+	for (unsigned int i = 0; i < nodes.size(); i++)
 	{
-		if (nodes[i].get_type() == "Bull Tee" || nodes[i].get_type() == "Side Tee")
-		{
-			tee_indecies.push_back(i);
-		}
+		if (pipes[nodes[i].get_pipe1_index()].get_type() != "Manifold")
+			if (nodes[i].get_type() == "Bull Tee" || nodes[i].get_type() == "Side Tee")
+			{
+				tee_indecies.push_back(i);
+			}
 	}
 
 	// find the manifold outlet in the piping structure of this hazard
@@ -609,6 +620,7 @@ void hazard::calculate_pressure_drop()
 	double storage_density = cylinderData[10].density;
 	double specific_heat_ratio = Agent.Gamma;
 	double gas_constant = Agent.R;
+	//calculate the reference pressure based on Tom's method
 	nodes[manifold_outlet_index].calculate_manifold_pressure(maximum_MFR, numContainers, storage_pressure, storage_temperature, storage_density, specific_heat_ratio);
 
 	std::vector<int> tees_remaining;
