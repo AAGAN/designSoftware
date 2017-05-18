@@ -43,6 +43,7 @@ pipe::pipe
 	diameter = 0.0; //nominal size 
 	pressure_drop = 0.0;
 	temperature_drop = 0.0;
+	massFlowRate = -1.0;
 }
 
 /**
@@ -71,6 +72,12 @@ int pipe::calculate_pressure_drop
 	double V1
 )
 {
+	if (massFlowRate == 0.0)
+	{
+		pressure_drop = 0.0;
+		temperature_drop = 0.0;
+		return 0;
+	}
 	double Mach1 = V1 / sqrt(gamma*gas_constant*T1);
 	double density1 = P1 / gas_constant / T1;
 	double viscosity = 1.458*pow(10, -6)*pow(T1, 1.5) / (T1 + 110.4);

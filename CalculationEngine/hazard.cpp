@@ -418,12 +418,7 @@ void hazard::info()
 assigns mass flow rates to all pipes and nodes based on the required gas quantity from nozzles
 */
 void hazard::assign_initial_flow_rates()
-{
-	//set the mass flow rate for all the pipes to zero
-	for (unsigned int i = 0; i < pipes.size(); i++)
-	{
-		pipes[i].set_mass_flow_rate(0.0);
-	}
+{	
 
 	// find all the nozzles in the piping structure of this hazard
 	std::vector<int> nozzle_indecies;
@@ -515,6 +510,45 @@ void hazard::assign_initial_flow_rates()
 		}
 	}
 
+	// find all the free nodes in the piping structure of this hazard
+	std::vector<int> free_node_indecies;
+	for (unsigned int i = 0; i < nodes.size(); i++)
+	{
+		if (pipes[nodes[i].get_pipe1_index()].get_type() != "Manifold")
+			if (nodes[i].get_type() == "Free Node")
+			{
+				free_node_indecies.push_back(i);
+			}
+	}
+
+	//this part assigns the mass flow rates from each free node to the closest tee
+	for (unsigned int i = 0; i < free_node_indecies.size(); i++)
+	{
+		current_node_index = free_node_indecies[i]; //i-th free node's index
+
+												 //assign the upstream pipe index of the free node and calculate and assign the mass flow rate from the free node (=0) to the pipe connecting to it
+												 //because nozzles don't have downstream pipes, this calculation should be done for nozzles once and then move to the upstream nodes and pipes
+		upstream_pipe_index = nodes[current_node_index].get_pipe1_index();
+		pipes[upstream_pipe_index].set_mass_flow_rate(0.0);
+
+		//assign the indecies for current node (node upstream of the nozzle) and its upstream and downstream pipes
+		current_node_index = pipes[upstream_pipe_index].get_node1_index();
+		upstream_pipe_index = nodes[current_node_index].get_pipe1_index();
+		downstream_pipe_index = nodes[current_node_index].get_pipe2_index();
+
+		//only elbows and couplings can be in a "pipe section" 
+		while (nodes[current_node_index].get_type() == "Elbow" || nodes[current_node_index].get_type() == "Coupling")
+		{
+			//assign the flow rate of downstream pipe to upstream pipe
+			pipes[upstream_pipe_index].set_mass_flow_rate(pipes[downstream_pipe_index].get_mass_flow_rate());
+
+			//use the inlet node of the upstream pipe as the current node and use its upstream and downstream pipes for next loop
+			current_node_index = pipes[upstream_pipe_index].get_node1_index();
+			upstream_pipe_index = nodes[current_node_index].get_pipe1_index();
+			downstream_pipe_index = nodes[current_node_index].get_pipe2_index();
+		}
+	}
+
 	//this part assigns initial mass flow rates for the rest of the piping system until the manifold outlet
 	bool pipes_with_no_flow_rate = true;
 
@@ -528,7 +562,7 @@ void hazard::assign_initial_flow_rates()
 			double mass_flow_rate_outlet_1 = pipes[nodes[current_tee].get_pipe2_index()].get_mass_flow_rate();
 			double mass_flow_rate_outlet_2 = pipes[nodes[current_tee].get_pipe3_index()].get_mass_flow_rate();
 			//if both of the outlets have values and the inlet doesn't have a value then
-			if (mass_flow_rate_outlet_1 != 0.0 && mass_flow_rate_outlet_2 != 0.0 && mass_flow_rate_inlet == 0.0)
+			if (mass_flow_rate_outlet_1 != -1.0 && mass_flow_rate_outlet_2 != -1.0 && mass_flow_rate_inlet == -1.0)
 			{
 				pipes_with_no_flow_rate = true;
 
@@ -647,7 +681,7 @@ void hazard::calculate_pressure_drop()
 		current_node_index = pipes[current_pipe_index].get_node2_index();
 		std::string current_node_type = nodes[current_node_index].get_type();
 
-		if (current_node_type == "Nozzle")
+		if (current_node_type == "Nozzle" || current_node_type == "Free Node")
 		{
 			if (tees_remaining.size() == 0)
 			{
