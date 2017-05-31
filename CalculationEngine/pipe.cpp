@@ -44,6 +44,12 @@ pipe::pipe
 	pressure_drop = 0.0;
 	temperature_drop = 0.0;
 	massFlowRate = -1.0;
+	index = 0;
+	pipe_length = 0.0;
+	minPressure = 0.0;
+	maxPressure = 0.0;
+	node1_index = 0;
+	node2_index = 0;
 }
 
 /**
@@ -169,7 +175,7 @@ int pipe::addPipeSizeData
 int pipe::addValveSizeData
 (
 	double nominal_size,
-	std::string type, 
+	std::string &type, 
 	double equivalent_length
 )
 {

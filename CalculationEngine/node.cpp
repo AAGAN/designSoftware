@@ -69,6 +69,10 @@ node::node
 	pipe2_index = 0;
 	pipe3_index = 0;
 	orifice_diameter = 0.0;
+	required_gas_quantity = 0.0;
+	supplied_gas_quantity = 0.0;
+	index = 0;
+
 }
 
 /**
@@ -277,10 +281,10 @@ void node::calculate_orifice_diameter(double D1, double qm, double gas_constant,
 		double X3 = A2 / C / E; // X_n-1
 		double delta3 = abs(A2 - X3*C*E); // d_n-1
 
-		double d = D1 * pow(pow(X3, 2.0) / (1 + pow(X3, 2.0)), 0.25);
-		double beta = d / D1;
-		double A = pow(19000 * beta / ReD, 0.8);
-		double M2 = 2 * L2 / (1 - beta);
+		d = D1 * pow(pow(X3, 2.0) / (1 + pow(X3, 2.0)), 0.25);
+		beta = d / D1;
+		A = pow(19000 * beta / ReD, 0.8);
+		M2 = 2 * L2 / (1 - beta);
 		C = 0.5961 + 0.0261 * pow(beta, 2.0) - 0.216 * pow(beta, 8.0) + 0.000521*pow(pow(10, 6.0)*beta / ReD, 0.7) +
 			(0.0188 + 0.0063*A)*pow(beta, 3.5)*pow(pow(10, 6.0) / ReD, 0.3) + (0.043 + 0.080*pow(2.718282, -10.0*L1) -
 				0.123*pow(2.718282, -7.0*L1)*(1 - 0.11*A)*pow(beta, 4.0) / (1 - pow(beta, 4.0)) -

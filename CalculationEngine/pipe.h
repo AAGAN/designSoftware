@@ -162,7 +162,7 @@ public:
 	static int addValveSizeData
 	(
 		double nominal_size,
-		std::string type,
+		std::string &type,
 		double equivalent_length
 	);
 

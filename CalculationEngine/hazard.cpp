@@ -616,7 +616,6 @@ assigns the total length of the pipe with pipe index of pipeIndex
 */
 void hazard::assign_total_length(int pipeIndex)
 {
-	double equivalent_length = 0.0;
 	int upstream_node_index = pipes[pipeIndex].get_node1_index();
 	//set the equivalent length of the node based on the internal diameter 
 	//of the pipe downstream of the node
@@ -637,7 +636,7 @@ void hazard::assign_total_length(int pipeIndex)
 void hazard::calculate_pressure_drop()
 {
 	// find the manifold outlet among the nodes of the piping structure of this hazard
-	int manifold_outlet_index;
+	int manifold_outlet_index = -1;
 	for (unsigned int i = 0; i < nodes.size(); i++)
 	{
 		if (nodes[i].get_type() == "Manifold Outlet")
@@ -755,8 +754,8 @@ double hazard::get_maximum_pressure()
 
 double hazard::calculate_95percent_discharge_time()
 {
-	double manifold_pressure;
-	double sqmax;
+	double manifold_pressure = -1;
+	double sqmax = -1;
 	for (auto& nd : nodes)
 	{
 		if (nd.get_type() == "Manifold Outlet")
