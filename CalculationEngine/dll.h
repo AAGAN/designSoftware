@@ -356,7 +356,7 @@ this function should be called before adding hazards and pipe topology
 */
 extern "C" int __stdcall add_pipe_size_data
 (
-	int schedule, // can be 40 or 80
+	int schedule, //!< can be 40 or 80
 	double nominal_size,
 	double thickness,
 	double internal_diameter,
