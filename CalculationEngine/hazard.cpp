@@ -810,9 +810,12 @@ void hazard::calculate_orifice_diameter()
 	{
 		if (nd.get_type() == "Nozzle")
 		{
-			double diameter_of_connecting_pipe = pipes[nd.get_pipe1_index()].get_diameter();
-			double flow_rate_of_connecting_pipe = pipes[nd.get_pipe1_index()].get_mass_flow_rate();
-			nd.calculate_orifice_diameter(diameter_of_connecting_pipe, flow_rate_of_connecting_pipe, Agent.R, Agent.Gamma);
+			if (nd.get_orifice_diameter() == 0.0)
+			{
+				double diameter_of_connecting_pipe = pipes[nd.get_pipe1_index()].get_diameter();
+				double flow_rate_of_connecting_pipe = pipes[nd.get_pipe1_index()].get_mass_flow_rate();
+				nd.calculate_orifice_diameter(diameter_of_connecting_pipe, flow_rate_of_connecting_pipe, Agent.R, Agent.Gamma);
+			}
 		}
 	}
 }

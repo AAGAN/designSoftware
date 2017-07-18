@@ -3,6 +3,7 @@
 #include <string>
 #include <cmath>
 #include <vector>
+#include "fanno.h"
 
 /**
 pipe data structure to store the information related to pipes

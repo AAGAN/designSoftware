@@ -262,7 +262,7 @@ extern "C" int __stdcall add_node
 	double x_coordinate = 0.0, //!< in meters
 	double y_coordinate = 0.0, //!< in meters
 	double z_coordinate = 0.0, //!< in meters
-	double orifice_diameter = 0.0, //!< if the node is a nozzle (type = 0) in meters
+	double orifice_diameter = 0.0, //!< if the node is a nozzle (type = 0) in meters, if for a nozzle this value is 0 then the engine calculates the diameter and if for a nozzle this value is more than 0 it means that the size of the orifice is fixed by the user
 	int enclosure_id = 0, //!< if the node is a nozzle the id of the associated enclosure
 	int connection_type = 1 //threaded = 1, welded = 2
 );
@@ -303,7 +303,7 @@ extern "C" int __stdcall add_pipe
 	int type = 0, //0,1 or 2
 	int node1_id = 0,
 	int node2_id = 0,
-	double diameter1 = 0.0, //!< internal diameter of the pipe
+	double diameter1 = 0.0, //!< internal diameter of the pipe, if it is 0 then calculation engine will calculate the size but if it is other than 0 it means that the user has fixed the diameter
 	int connection_type = 1, //threaded = 1, welded = 2
 	int schedule_id = 1 //schedule40 = 1, schedule80 = 2 (as input by user)
 );

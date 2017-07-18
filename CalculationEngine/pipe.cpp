@@ -11,15 +11,15 @@ pipe::~pipe()
 
 pipe::pipe
 (
-	int Id, 
-	int Type, 
-	int Node1id, 
-	int Node2id, 
+	int Id,
+	int Type,
+	int Node1id,
+	int Node2id,
 	double Diameter, //internal diameter
 	int connectionType,
 	int Schedule
 )
-:id(Id),node1id(Node1id),node2id(Node2id),internal_diameter(Diameter),connection_type(connectionType),schedule(Schedule)
+	:id(Id), node1id(Node1id), node2id(Node2id), internal_diameter(Diameter), connection_type(connectionType), schedule(Schedule)
 {
 	switch (Type)
 	{
@@ -38,7 +38,15 @@ pipe::pipe
 
 	//pipe size can be fixed by the user, the code to add this capability is not added yet
 	//for now all pipes sizes are going to be changed by the calculation engine
-	user_defined_size = false;
+
+	if (Diameter != 0.0)
+	{
+		user_defined_size = true;
+	}
+	else
+	{
+		user_defined_size = false;
+	}
 	total_length = 0.0;
 	diameter = 0.0; //nominal size 
 	pressure_drop = 0.0;
@@ -90,34 +98,65 @@ int pipe::calculate_pressure_drop
 	double Re = density1*V1*internal_diameter / viscosity;
 	double rel_roughness = roughness / internal_diameter;
 	double friction_factor = 0.25 * pow(log10(rel_roughness / 3.7 + 5.74 / pow(Re, 0.9)), -2.0);
-	double (*function)(double, double, double, double, double, double);
-	double (*derivative)(double, double);
-	if (method == 0)
+	
+	double M2 = 0.0;
+	double P2 = 0.0;
+	double T2 = 0.0;
+	double density2 = 0.0;
+	int error = fanno::fanno_flow
+	(
+		Mach1,   // inlet mach number
+		M2,   // outlet mach number which is going to be calculated (output)
+		P1,   // pressure at the beginning of the pipe
+		P2,   // pressure at the end of the pipe (output)
+		density1, // density at the beginiing of the pipe
+		density2, // density at the end of the pipe (output)
+		T1,   // temperature at the beginning of the pipe
+		T2,   // temperature at the end of the pipe (output)
+		total_length,    // total length of the pipe in meters
+		friction_factor,    // friction factor
+		internal_diameter,    // diameter of the pipe in meters
+		gamma, // specific heat ratio
+		0.000001 // guess value for M2; if subsonic, choose 0.000001
+	);
+	if (error == 1)
 	{
-		function = isothermal_function;
-		derivative = d_dm_isothermal_function;
-	}
-	else if (method == 1)
-	{
-		function = adiabatic_function;
-		derivative = d_dm_adiabatic_function;
-		double Lmax;
-		double fanno = (1 - pow(Mach1, 2.0)) / gamma / pow(Mach1, 2.0) + (gamma + 1) / 2.0 / gamma*log(pow(Mach1, 2.0)*(gamma + 1.0) / 2.0 / (1 + (gamma - 1.0) / 2.0*pow(Mach1, 2.0)));
-		Lmax = internal_diameter / 4.0 / friction_factor * fanno;
-		if (total_length >= Lmax) return -1;
+		std::cout << "Mach 1 is reached before the end of pipe length." << std::endl;
 	}
 	else
 	{
-		function = adiabatic_function;
-		derivative = d_dm_adiabatic_function;
+		pressure_drop = P1 - P2;
+		temperature_drop = T1 - T2;
 	}
-	double Mach2 = 0.001;
-	Newton_raphson(function, derivative, Mach2, 0.000000001, Mach2, 20, Mach1, gamma, friction_factor);
-	
-	double T2 = T1 * (1 + (gamma - 1) / 2.0*pow(Mach1, 2.0)) / (1 + (gamma - 1) / 2.0*pow(Mach2, 2.0));
-	temperature_drop = T1 - T2;
-	double P2 = P1 * sqrt((pow(Mach1,2.0)*(1+(gamma-1)/1.0*pow(Mach1,2.0))) / (pow(Mach2, 2.0)*(1 + (gamma - 1) / 1.0*pow(Mach2, 2.0))));
-	pressure_drop = P1 - P2;
+
+	//double (*function)(double, double, double, double, double, double);
+	//double (*derivative)(double, double);
+	//if (method == 0)
+	//{
+	//	function = isothermal_function;
+	//	derivative = d_dm_isothermal_function;
+	//}
+	//else if (method == 1)
+	//{
+	//	function = adiabatic_function;
+	//	derivative = d_dm_adiabatic_function;
+	//	double Lmax;
+	//	double fanno = (1 - pow(Mach1, 2.0)) / gamma / pow(Mach1, 2.0) + (gamma + 1) / 2.0 / gamma*log(pow(Mach1, 2.0)*(gamma + 1.0) / 2.0 / (1 + (gamma - 1.0) / 2.0*pow(Mach1, 2.0)));
+	//	Lmax = internal_diameter / friction_factor * fanno; //internal_diameter / 4.0 / friction_factor * fanno;
+	//	if (total_length >= Lmax) return -1;
+	//}
+	//else
+	//{
+	//	function = adiabatic_function;
+	//	derivative = d_dm_adiabatic_function;
+	//}
+	//double Mach2 = 0.001;
+	//Newton_raphson(function, derivative, Mach2, 0.000000001, Mach2, 20, Mach1, gamma, friction_factor);
+	//
+	//double T2 = T1 * (1 + (gamma - 1) / 2.0*pow(Mach1, 2.0)) / (1 + (gamma - 1) / 2.0*pow(Mach2, 2.0));
+	//temperature_drop = T1 - T2;
+	//double P2 = P1 * sqrt((pow(Mach1,2.0)*(1+(gamma-1)/1.0*pow(Mach1,2.0))) / (pow(Mach2, 2.0)*(1 + (gamma - 1) / 1.0*pow(Mach2, 2.0))));
+	//pressure_drop = P1 - P2;
 	return 0;
 }
 
