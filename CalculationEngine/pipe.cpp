@@ -308,3 +308,21 @@ int pipe::Newton_raphson(double(*f)(double, double, double, double,double,double
 	if (num_itterations == max_num_itterations) return 1;
 	return 0;
 }
+
+
+double pipe::get_nominal_size()
+{
+	if (diameter != 0)
+	{
+		return diameter;
+	}
+	else
+	{
+		for (auto& pip : pipeData)
+		{
+			if (std::abs(pip.internalDiameter - internal_diameter) < 0.00001)
+				return pip.nominalSize;
+		}
+	}
+
+}

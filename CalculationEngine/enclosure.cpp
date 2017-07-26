@@ -60,6 +60,8 @@ cup_burner(cupBurnerValue), nozzle_quantity(numNozzles), altitude_correction_fac
 		min_design_concentration = concentration;*/
 
 	vol_agent_required = get_vol_agent_required();
+
+	get_altitude_correction_factor(Altitude);
 }
 
 /**
@@ -179,5 +181,7 @@ altitude_meters  correction_factor
 */
 double enclosure::get_altitude_correction_factor(double Altitude)
 {
+	double cor = 5.48701e-9*std::pow(Altitude, 2.0) - 0.00012*Altitude + 1.00208;
+	altitude_correction_factor = cor;
 	return altitude_correction_factor;
 }

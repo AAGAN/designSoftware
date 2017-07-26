@@ -363,8 +363,8 @@ int __stdcall update_hazard_info
 	{
 		if (haz.get_id() == hazard_id)
 		{
-			haz.update_hazard();
-			return 0;
+			int error_code = haz.update_hazard();
+			return error_code;
 		}
 	}
 	return -1;

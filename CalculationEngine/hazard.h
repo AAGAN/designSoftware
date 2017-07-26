@@ -54,6 +54,7 @@ private:
 	int id;	
 	double containerVolSize; //!< common containers used for inergen are either 22.3 or 39.0 cubic meters
 	int numContainers;
+	//bool numContainersFixed;
 	double minTotalInergenVolReq;
 	double suppliedInergenVol;
 	int numEnclosures;
@@ -67,7 +68,7 @@ private:
 	// functions for the gas quantity calculations
 	void assign_supplied_inergen_vol(); //!< Assigns the volume calculated from cylinders
 	void assign_flooding_factor();
-	void check_design_concentration();
+	int check_design_concentration();
 	void calc_estimated_system_flow_rate();
 	void assign_gas_flow_rate();
 	void assign_nozzle_quantity();
@@ -77,5 +78,6 @@ private:
 	void  assign_o2_co2_concentration();
 	void output_data(std::string filename);
 	void set_pipe_length();
+	//void fix_number_of_cylinders() { numContainersFixed = true; }
 	
 };

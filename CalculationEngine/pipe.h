@@ -104,7 +104,7 @@ public:
 	void set_schedule(int sch) { schedule = sch; }
 
 	void set_nominal_size(double nomSize) { diameter = nomSize; }
-	double get_nominal_size() { return diameter; }
+	double get_nominal_size();
 
 	void set_diameter(double diam) { internal_diameter = diam; }
 	double get_diameter() { return internal_diameter; }

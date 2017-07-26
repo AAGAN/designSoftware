@@ -1,6 +1,7 @@
 #include "hazard.h"
 #include "dll.h"
 #include <iomanip>
+#include <math.h>
 
 //defined in dll.cpp
 extern bool NFPA2001;
@@ -35,7 +36,8 @@ hazard::hazard(
 	minTotalInergenVolReq(0),// * cubic_meters),
 	suppliedInergenVol(0),// * cubic_meters),
 	numEnclosures(0),
-	estimated_system_flow_rate(0)// * cubic_meters)
+	estimated_system_flow_rate(0) // * cubic_meters)
+	//numContainersFixed(false)
 {
 	
 }
@@ -46,18 +48,19 @@ and all its enclosures.
 */
 int hazard::update_hazard()
 {
+	int error_code = 0;
 	numEnclosures = (int)enclosures.size();
 	calcMinTotalInergenVol();//Step 7
 	calcNumInergenContainers();//Step 8
 	calcActualInergenVol();//Step 9
 	assign_supplied_inergen_vol();//Step 10
 	assign_flooding_factor(); //Step 11
-	check_design_concentration(); //Steps 12-13-14
+	error_code = check_design_concentration(); //Steps 12-13-14 in the currect method, the interface is going to check that
 	calc_estimated_system_flow_rate(); //Step 15
 	assign_nozzle_quantity(); //Step 16
 	assign_gas_flow_rate(); //Step 17
 	assign_o2_co2_concentration();//assign the concentration of oxygen and co2 for display on the gui
-	return 0;
+	return error_code;
 }
 
 hazard::~hazard()
@@ -71,7 +74,7 @@ double hazard::calcMinTotalInergenVol()
 {
 	minTotalInergenVolReq = 0.0;// *cubic_meters;
 	if (enclosures.size() != numEnclosures)
-		std::cout << "Error calculating totalInergenReq" << std::endl;
+		std::cout << "Error calculating totalInergenReq - enclosures.size() != numEnclosures" << std::endl;
 	for (auto& enc : enclosures)
 	{
 		minTotalInergenVolReq += enc.get_vol_agent_required();
@@ -224,8 +227,8 @@ void hazard::set_pipe_length()
 
 int hazard::calcNumInergenContainers()
 {
-	numContainers = 0;
-	numContainers += (int)ceil(minTotalInergenVolReq / containerVolSize);
+	if (numContainers == 0)	numContainers += (int)ceil(minTotalInergenVolReq / containerVolSize);
+
 	return numContainers;
 }
 
@@ -292,13 +295,13 @@ Calculates the desing concentration at the maximum ambient temperature
 using the supplied inergen agent.
 Step No. 12 of the System Manual of inergen 300 bar system
 */
-void hazard::check_design_concentration(
+int hazard::check_design_concentration(
 	//std::string Class, 
 	//std::string Type, 
 	//quantity<dimensionless> cup_burner_value
 )
 {
-	
+	int error_code = 0;
 	for (auto& enc : enclosures)
 	{
 		double dc;
@@ -309,8 +312,12 @@ void hazard::check_design_concentration(
 		{
 			std::cout << "System design not acceptable because design concentration at maximum temperature is: " << dc << std::endl;
 			std::cout << "It should be between 34.2 and 52 percent" << std::endl;
+			error_code = 1;
 			if (dc >= 52 || dc < 62)
+			{
 				std::cout << "This design is acceptable in normally non-occupied areas if evacuation can be acomplished to limit exposure to less than 30 seconds" << std::endl;
+				error_code += 10;
+			}
 		}
 		
 		//Steps 14 and 13
@@ -319,12 +326,16 @@ void hazard::check_design_concentration(
 		{
 			std::cout << "System design not acceptable because design concentration at normal ambient temperature is: " << dc << std::endl;
 			std::cout << "It should be between 34.2 and 52 percent" << std::endl;
+			error_code += 100;
 			if (dc >= 52 || dc < 62)
+			{
 				std::cout << "This design is acceptable in normally non-occupied areas if evacuation can be acomplished to limit exposure to less than 30 seconds" << std::endl;
+				error_code += 1000;
+			}
 		}
 	}
 
-	return;
+	return error_code;
 }
 
 /**
@@ -661,7 +672,7 @@ void hazard::calculate_pressure_drop()
 	int current_pipe_index = nodes[current_node_index].get_pipe2_index();
 	double T_1 = nodes[current_node_index].get_static_temperature();
 	double P_1 = nodes[current_node_index].get_static_pressure();
-	double V_1 = maximum_MFR / nodes[current_node_index].get_density() / pipes[current_pipe_index].get_diameter();
+	double V_1 = maximum_MFR / nodes[current_node_index].get_density() / (3.14159265 * std::pow(pipes[current_pipe_index].get_diameter(), 2.0) / 4.0);
 	int method = 1; //0 for isothermal and 1 for adiabatic
 	double roughness = 0.00005;
 
