@@ -35,7 +35,12 @@ public:
 	void set_cylinder_volume(double cyl_vol) { containerVolSize = cyl_vol; }
 	void set_discharge_time(double dis_time) { discharge_time = dis_time; }
 	void update_pipe_network();
-	
+
+	//-------------------------------
+	// GSI code implementation
+	void update_pipe_network_gsi();
+	bool bNozCodeFixed;
+
 	//----------------------------------------------------------------------------------
 	// functions for the hydraulic calculations
 	void assign_initial_flow_rates();

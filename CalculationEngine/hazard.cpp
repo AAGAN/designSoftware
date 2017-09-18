@@ -209,6 +209,203 @@ void hazard::update_pipe_network()
 	output_data("c:\\output.txt");
 }
 
+//from tom's code
+int DENCALC(double pressure, double& density, double storage_pressure, double storage_tempertatue, double storage_density)
+{
+	//pressure = pressure / 6895.0; //Pa to psi
+	//storage_pressure = storage_pressure / 6895.0; // Pa to psi
+	//storage_tempertatue = 9.0 / 5.0 * storage_tempertatue; //kelvin to rankin
+	//storage_density = storage_density * 0.06243; // kg/m^3 to lb/ft^3
+
+	double ISFA = 0.314;
+	double DFACT = storage_density * storage_tempertatue / storage_pressure;
+	double TFACTOR = 1.05 * pow((pressure / storage_pressure), ISFA);
+	double temp = storage_tempertatue*TFACTOR;
+	if (temp > storage_tempertatue) temp = storage_tempertatue;
+	density = DFACT * pressure / temp;
+
+	//density = density / 0.06243; // lb/ft^3 to kg/m^3
+
+	return 0;
+}
+
+//Tom's method
+void hazard::update_pipe_network_gsi()
+{
+	//assign the index of nodes in the nodes vector to each node
+	for (unsigned int i = 0; i < nodes.size(); i++)
+		nodes[i].index = i;
+
+	//assign the index of all the pipes in the pipe vector to each pipe
+	for (unsigned int i = 0; i < pipes.size(); i++)
+		pipes[i].index = i;
+
+	//assign the correct node index to pipes 
+	for (auto& nd : nodes)
+	{
+		if (nd.get_type() != "iFlow Valve")
+		{
+			for (auto& pp : pipes)
+			{
+				if (pp.node1id == nd.get_id())
+				{
+					pp.add_node1_index(nd.index);
+				}
+				else if (pp.node2id == nd.get_id())
+				{
+					pp.add_node2_index(nd.index);
+				}
+			}
+		}
+	}
+
+	// assign the correct pipe index to nodes
+	for (auto& pp : pipes)
+	{
+		for (auto& nd : nodes)
+		{
+			if (nd.get_type() != "iFlow Valve")
+			{
+				if (nd.pipe1id == pp.get_id())
+				{
+					nd.add_pipe1_index(pp.index);
+				}
+				else if (nd.pipe2id == pp.get_id())
+				{
+					nd.add_pipe2_index(pp.index);
+				}
+				else if ((nd.pipe3id) == pp.get_id())
+				{
+					nd.add_pipe3_index(pp.index);
+				}
+			}
+		}
+	}
+
+	for (auto& nd : nodes)
+	{
+		if (nd.get_type() == "Manifold Outlet")
+		{
+			if (nd.pipe3id != 0)
+				nd.add_pipe2_index(nd.get_pipe3_index());
+			break;
+		}
+	}
+	set_pipe_length();
+
+	//Block 3
+	calculate_stime();
+	//Block 13
+	if (bNozCodeFixed)
+	{
+		// if nozzle is fixed, pick the actual drill size from the table
+		// this can mean that if user has picked an actual drill size
+		// we can skip this step
+	}
+	//Block 14
+	int const sPstor = 4410; // psi
+	double d0 = 26.53; // lb(mass)/ft^3 (check this)
+	double sTSTOR = 527.7;// in Rankin (check this)
+	double ISFA = 0.314;
+	double DFACT = d0 * sTSTOR / sPstor;
+	double sdensityr[sPstor + 1];
+	for (int ipsiacurrent = sPstor; ipsiacurrent > 0; ipsiacurrent--)
+	{
+		double TFACTOR = 1.05*pow(((double)ipsiacurrent / (double)sPstor), ISFA);
+		double temp = sTSTOR*TFACTOR;
+		sdensityr[ipsiacurrent] = DFACT*ipsiacurrent / temp;
+	}
+AdjustRate1:
+	
+	assign_initial_flow_rates(); //for the case of fixed orifice diameter, check if the initial guess in this function works (the guess is in english units from Tom's software)
+	
+	assign_pipe_sizes_based_on_max_flow_rate();
+
+	for (auto& pp : pipes)
+	{
+		if (pp.get_type() != "Manifold")
+			assign_total_length(pp.index);
+	}
+
+	// find the manifold outlet among the nodes of the piping structure of this hazard
+	int manifold_outlet_index = -1;
+	for (unsigned int i = 0; i < nodes.size(); i++)
+	{
+		if (nodes[i].get_type() == "Manifold Outlet")
+		{
+			double max_MFR = pipes[nodes[i].get_pipe2_index()].get_mass_flow_rate();
+			nodes[i].calculate_manifold_pressure(max_MFR, numContainers, cylinderData[10].pressure, cylinderData[10].temperature, cylinderData[10].density, Agent.Gamma);
+			manifold_outlet_index = i;
+			break;
+		}
+	}
+
+	std::vector<int> tees_remaining;
+
+	int current_node_index = manifold_outlet_index;
+	int current_pipe_index = nodes[current_node_index].get_pipe2_index();
+	double T_1 = nodes[current_node_index].get_static_temperature();
+	double P_1 = nodes[current_node_index].get_static_pressure();
+	//double V_1 = maximum_MFR / nodes[current_node_index].get_density() / (3.14159265 * std::pow(pipes[current_pipe_index].get_diameter(), 2.0) / 4.0);
+	double roughness = 0.00005;
+
+	do
+	{
+		double LS = pipes[current_pipe_index].get_total_length() * 3.28084; //meter to ft
+		double sRemainLength = pipes[current_pipe_index].get_length() / pipes[current_pipe_index].get_total_length();
+		double D1 = 8.0764 * pow(pipes[current_pipe_index].get_diameter() * 39.37, 1.25);
+		double D2 = 1.013 * pow(pipes[current_pipe_index].get_diameter() * 39.37, 5.25);
+		double Q9 = pow(pipes[current_pipe_index].get_mass_flow_rate() * 2.20462, 2.0);
+		double sDensity = 0.0;
+		DENCALC(nodes[current_node_index].get_static_pressure()*0.000145, sDensity, (double)sPstor, sTSTOR, d0);
+		//if (sDensity > nodes[pipes[current_pipe_index].get_node2_index()].get_density()*16.018);
+		//pipes[current_pipe_index].calculate_pressure_drop(specific_heat_ratio, method, T_1, P_1, roughness, gas_constant, V_1);
+		
+		/*
+		double pressure_drop = pipes[current_pipe_index].get_pressure_drop();
+		double current_node_pressure = nodes[current_node_index].get_static_pressure() - pressure_drop;
+		nodes[pipes[current_pipe_index].get_node2_index()].set_static_pressure(current_node_pressure);
+		double temperature_drop = pipes[current_pipe_index].get_temperature_drop();//storage_temperature*pow(current_node_pressure / storage_pressure, (specific_heat_ratio - 1.0) / specific_heat_ratio);
+		double current_node_temperature = nodes[current_node_index].get_static_temperature() - temperature_drop;
+		nodes[pipes[current_pipe_index].get_node2_index()].set_static_temperature(current_node_temperature);
+		double current_node_density = current_node_pressure / current_node_temperature / gas_constant;
+		nodes[pipes[current_pipe_index].get_node2_index()].set_density(current_node_density);
+
+		current_node_index = pipes[current_pipe_index].get_node2_index();
+		std::string current_node_type = nodes[current_node_index].get_type();
+
+		if (current_node_type == "Nozzle" || current_node_type == "Free Node")
+		{
+			if (tees_remaining.size() == 0)
+			{
+				break;
+			}
+			else
+			{
+				current_node_index = tees_remaining.back();
+				current_pipe_index = nodes[current_node_index].get_pipe3_index();
+				//current_node_index = pipes[current_node_index].get_node2_index();
+				tees_remaining.pop_back();
+			}
+		}
+		else if (current_node_type == "Bull Tee" || current_node_type == "Side Tee")
+		{
+			tees_remaining.push_back(current_node_index);
+			current_pipe_index = nodes[current_node_index].get_pipe2_index();
+			//current_node_index = pipes[current_pipe_index].get_node2_index();
+		}
+		else
+		{
+			current_pipe_index = nodes[current_node_index].get_pipe2_index();
+			//current_node_index = pipes[current_pipe_index].get_node2_index();
+		}*/
+	} while (true);
+	
+
+}
+
+
+
 /**
 calculates and assigns the length of a pipe based on the coordinates of its 
 associated nodes
@@ -430,7 +627,8 @@ assigns mass flow rates to all pipes and nodes based on the required gas quantit
 */
 void hazard::assign_initial_flow_rates()
 {	
-
+	std::vector<double> enc_sup_vol;//intermediate variable to hold the supplied volume of agent for each enclosure
+	std::vector<int> num_noz_w_defined_flowrate; //for each enclosure
 	// find all the nozzles in the piping structure of this hazard
 	std::vector<int> nozzle_indecies;
 	for (unsigned int i = 0 ; i < nodes.size() ; i++)
@@ -444,11 +642,18 @@ void hazard::assign_initial_flow_rates()
 	//assign the required and supplied quantity from enclosure to the nozzles
 	for (unsigned int i = 0; i < enclosures.size(); i++)
 	{
+		enc_sup_vol.push_back(enclosures[i].get_supplied_vol_agent());
+		num_noz_w_defined_flowrate.push_back(0);
 		for (unsigned int j = 0; j < nozzle_indecies.size(); j++)
 		{
 			if (nodes[nozzle_indecies[j]].get_enclosure_id() == enclosures[i].get_id())
 			{
 				enclosures[i].add_nozzle_index(nozzle_indecies[j]);
+				enc_sup_vol[i] = enc_sup_vol[i] - nodes[nozzle_indecies[j]].get_supplied_quantity(); //if user provided this value, then it is not zero, if this is zero then this calculation does not change the supplied quantity assigned to an enclosure
+				if (nodes[nozzle_indecies[j]].get_supplied_quantity() > 0.00001)
+				{
+					num_noz_w_defined_flowrate[i]++;
+				}
 			}
 		}
 	}
@@ -459,9 +664,14 @@ void hazard::assign_initial_flow_rates()
 			if (nodes[nozzle_indecies[j]].get_enclosure_id() == enclosures[i].get_id())
 			{
 				double required_quantity = enclosures[i].get_vol_agent_required() / enclosures[i].number_of_nozzles();
-				double supplied_quantity = enclosures[i].get_supplied_vol_agent() / enclosures[i].number_of_nozzles();
+				double supplied_quantity = /*enclosures[i].get_supplied_vol_agent()*/enc_sup_vol[i] / (enclosures[i].number_of_nozzles()-num_noz_w_defined_flowrate[i]);
 				nodes[nozzle_indecies[j]].set_required_quantity(required_quantity);
-				nodes[nozzle_indecies[j]].set_supplied_quantity(supplied_quantity);
+				if (nodes[nozzle_indecies[j]].get_supplied_quantity() < 0.00001) nodes[nozzle_indecies[j]].set_supplied_quantity(supplied_quantity);
+				if (nodes[nozzle_indecies[j]].get_orifice_diameter() > 0.00001) //if orifice diameter is defined
+				{
+					double nozzle_mfr_guess = 0.785398 * 0.1 * pow(nodes[nozzle_indecies[j]].get_orifice_diameter(),2.0); //initial guess for mass flow rate if the diameter of the orifice is defined (from Tom's software at the end of Block 14)
+					nodes[nozzle_indecies[j]].set_supplied_quantity(nozzle_mfr_guess);
+				}
 			}
 		}
 	}
@@ -609,15 +819,19 @@ void hazard::assign_pipe_sizes_based_on_max_flow_rate()
 	{
 		if (!pp.user_defined_size && pp.get_type() != "Manifold")
 		{
+			bool pipe_found = false;
 			for (auto& pip : pipe::pipeData)
 			{
 				if (pip.schedule == pp.get_schedule() &&  pip.maxFlowRate > pp.get_mass_flow_rate())
 				{
+					//here we also need to check if the diameter choosen for the pipe connected to nozzle is below 3 inch
 					pp.set_diameter(pip.internalDiameter);
 					pp.set_nominal_size(pip.nominalSize);
+					pipe_found = true;
 					break;
 				}
 			}
+			if (!pipe_found) std::cout << "pipe not found, id: " << pp.get_id() << " pipe flow rate: " << pp.get_mass_flow_rate() << std::endl;
 		}
 	}
 }
@@ -658,15 +872,16 @@ void hazard::calculate_pressure_drop()
 			break;
 		}
 	}
+	
 	double maximum_MFR = pipes[nodes[manifold_outlet_index].get_pipe2_index()].get_mass_flow_rate();
-	double storage_pressure = cylinderData[10].pressure; // the pressure recession data is in the dll.h and dll.cpp files
-	double storage_temperature = cylinderData[10].temperature; //10 indicates the full cylinder condition (100% full)
-	double storage_density = cylinderData[10].density;
+	//double storage_pressure = cylinderData[10].pressure; // the pressure recession data is in the dll.h and dll.cpp files
+	//double storage_temperature = cylinderData[10].temperature; //10 indicates the full cylinder condition (100% full)
+	//double storage_density = cylinderData[10].density;
 	double specific_heat_ratio = Agent.Gamma;
 	double gas_constant = Agent.R;
 	//calculate the reference pressure based on Tom's method
-	nodes[manifold_outlet_index].calculate_manifold_pressure(maximum_MFR, numContainers, storage_pressure, storage_temperature, storage_density, specific_heat_ratio);
-
+	//nodes[manifold_outlet_index].calculate_manifold_pressure(maximum_MFR, numContainers, storage_pressure, storage_temperature, storage_density, specific_heat_ratio);
+	
 	std::vector<int> tees_remaining;
 	int current_node_index = manifold_outlet_index;
 	int current_pipe_index = nodes[current_node_index].get_pipe2_index();
@@ -721,7 +936,7 @@ void hazard::calculate_pressure_drop()
 
 void hazard::calculate_stime()
 {
-	double stempSingle = 95.0 * minTotalInergenVolReq / numContainers / containerVolSize;
+	double stempSingle = 95.0 * minTotalInergenVolReq / numContainers / (containerVolSize);
 	stempSingle = 0.00074956*pow(stempSingle, 2.0) - 0.18112756*stempSingle + 11.56569296;
 	sTime = 34 * stempSingle*discharge_time / 60.0;
 	if (sTime > discharge_time)

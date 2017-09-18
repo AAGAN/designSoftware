@@ -4,6 +4,15 @@
 #include <vector>
 
 /**
+structure to hold the database of drill sizes
+*/
+struct drills
+{
+	std::wstring size_name;
+	double diameter;
+};
+
+/**
 	node class
 	a node can be any of the following types:
 	
@@ -65,6 +74,14 @@ public:
 	//index of the node in the nodes vector of a hazard
 	int index;
 
+	static std::vector<drills> drill_db;
+
+	static int add_drill_size_data
+	(
+		std::wstring drill_size,
+		double drill_diameter
+	);
+
 	node
 	(
 		int Id,
@@ -119,6 +136,7 @@ public:
 
 	void set_required_quantity(double reqQ) { required_gas_quantity = reqQ; }
 	void set_supplied_quantity(double supQ) { supplied_gas_quantity = supQ; }
+	double get_supplied_quantity() { return supplied_gas_quantity; }
 
 	double get_equivalent_length_1() { return equivalent_length_1; }
 	double get_equivalent_length_2() { return equivalent_length_2; }

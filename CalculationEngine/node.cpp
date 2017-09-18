@@ -70,7 +70,7 @@ node::node
 	pipe3_index = 0;
 	orifice_diameter = 0.0;
 	required_gas_quantity = 0.0;
-	supplied_gas_quantity = 0.0;
+	if (supplied_gas_quantity<0.0001) supplied_gas_quantity = 0.0; //this checks to see if the user provided the gas quantity for this nozzle or not, it is assumed that if the gas quantity provided is always more than 0.0001
 	index = 0;
 
 }
@@ -128,6 +128,19 @@ int node::set_equivalent_length(double internal_diameter)
 			equivalent_length_2 = 0;// *meters;
 		}
 	}
+	else if (type == "Manifold Outlet")
+	{
+		if (connection_type == 1)
+		{
+			equivalent_length_1 = 0.5 * 30.0 * internal_diameter;
+			equivalent_length_2 = 0;// *meters;
+		}
+		else if (connection_type == 2)
+		{
+			equivalent_length_1 = 0.5 * 16.0 * internal_diameter;
+			equivalent_length_2 = 0;// *meters;
+		}
+	}
 	else if (type == "Bull Tee")
 	{
 		if (connection_type == 1)
@@ -164,6 +177,8 @@ int node::set_equivalent_length(double internal_diameter)
 		equivalent_length_1 = 0.0;// *meters;
 		equivalent_length_2 = 0.0;// *meters;
 	}
+	equivalent_length_1 /= 12.0;// *meters;
+	equivalent_length_2 /= 12.0;// *meters;
 	return 0;
 }
 
@@ -305,4 +320,17 @@ void node::calculate_orifice_diameter(double D1, double qm, double gas_constant,
 	{
 		orifice_diameter = -1;
 	}
+}
+
+int node::add_drill_size_data
+(
+	std::wstring drill_size,
+	double drill_diameter
+)
+{
+	drills drill;
+	drill.diameter = drill_diameter;
+	drill.size_name = drill_size;
+	drill_db.push_back(drill);
+	return 0;
 }

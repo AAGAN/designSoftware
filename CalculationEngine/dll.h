@@ -51,7 +51,7 @@ struct ENCLOSURE
 	double o2_concentration; //!< Oxygen percent after discharge in worst case
 	double co2_concentration; //!< Carbon dioxide percent after discharge in worst case
 	double minimum_volume_agent_required; //!<minimum amount of agent required to extinguish the fire
-	double supplied_gas_quantity; //!< supplied gas quantity from gas quantity calculations
+	double supplied_gas_quantity; //!< supplied gas quantity from gas quantity calculations or from user defined value for nozzles
 	double supplied_gas_quantity_95;
 	double supplied_gas_quantity_60;
 	double estimated_gas_flow; //!< estimated flow rate in cubic meters per minutes from Step 15
@@ -264,7 +264,8 @@ extern "C" int __stdcall add_node
 	double z_coordinate = 0.0, //!< in meters
 	double orifice_diameter = 0.0, //!< if the node is a nozzle (type = 0) in meters, if for a nozzle this value is 0 then the engine calculates the diameter and if for a nozzle this value is more than 0 it means that the size of the orifice is fixed by the user
 	int enclosure_id = 0, //!< if the node is a nozzle the id of the associated enclosure
-	int connection_type = 1 //threaded = 1, welded = 2
+	int connection_type = 1, //threaded = 1, welded = 2
+	double agent_volume = 0.0  // in case of fixed volume of agent
 );
 
 /** removes a node from a hazard*/
@@ -377,4 +378,14 @@ extern "C" int __stdcall add_valve_size_data
 	double nominal_size,
 	double equivalent_length,
 	int Type
+);
+
+/**
+populates the drill size and diameter data structure
+
+*/
+extern "C" int __stdcall add_drill_size_data
+(
+	wchar_t  drill_size[8], //
+	double drill_diameter //diameter of the drill in meters
 );

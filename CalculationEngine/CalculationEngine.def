@@ -18,3 +18,4 @@ EXPORTS
     add_cylinder @16
     add_pipe_size_data @17
     add_valve_size_data @18
+    add_drill_size_data @19

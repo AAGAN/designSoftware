@@ -90,6 +90,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);C:\Program Files\boost\boost_1_61_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\Users\arashahmadzadegan\Box Sync\CleanAgentSoftware\DesignSoftware\CoolProp\build\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -119,6 +120,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir);C:\Program Files\boost\boost_1_61_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -144,6 +146,7 @@
   <ItemGroup>
     <ClInclude Include="dll.h" />
     <ClInclude Include="enclosure.h" />
+    <ClInclude Include="fanno.h" />
     <ClInclude Include="node.h" />
     <ClInclude Include="pipe.h" />
     <ClInclude Include="hazard.h" />
@@ -151,6 +154,7 @@
   <ItemGroup>
     <ClCompile Include="dll.cpp" />
     <ClCompile Include="enclosure.cpp" />
+    <ClCompile Include="fanno.cpp" />
     <ClCompile Include="node.cpp" />
     <ClCompile Include="pipe.cpp" />
     <ClCompile Include="hazard.cpp" />

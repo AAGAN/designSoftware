@@ -6,6 +6,7 @@
 #include "hazard.h"
 #include "node.h"
 #include "pipe.h"
+#include <string.h>
 
 bool NFPA2001 = 1;
 std::vector<hazard> hazards;
@@ -23,6 +24,7 @@ bool enclosure_exists(int, int);
 ///of the pipe class in the global scope
 std::vector<pData> pipe::pipeData;
 std::vector<vData> pipe::valveData;
+std::vector<drills> node::drill_db;
 
 //structure to define the gas properties
 struct gas Agent;
@@ -525,7 +527,8 @@ int __stdcall add_node(
 	double z_coordinate, 
 	double orifice_diameter,
 	int enclosure_id,
-	int connection_type
+	int connection_type,
+	double agent_volume
 )
 {
 	node nd
@@ -541,7 +544,11 @@ int __stdcall add_node(
 		enclosure_id,
 		connection_type
 	);
-	if (type == 0) nd.set_orifice_diameter(orifice_diameter);
+	if (type == 0)
+	{
+		nd.set_orifice_diameter(orifice_diameter);
+		nd.set_supplied_quantity(agent_volume);
+	}
 	if (node_exist(node_id, hazard_id))
 		remove_node(node_id, hazard_id);
 	for (auto& haz : hazards)
@@ -588,6 +595,21 @@ int __stdcall add_cylinder
 	return -1; //hazard_id did not exist!
 }
 
+int __stdcall add_drill_size_data
+(
+	wchar_t drill_size[8],
+	double drill_diameter
+)
+{
+	std::wstring a(drill_size);
+	node::add_drill_size_data
+	(
+		a,
+		drill_diameter
+	);
+	return 0;
+}
+
 int __stdcall add_pipe_size_data
 (
 	int schedule, 
@@ -602,7 +624,7 @@ int __stdcall add_pipe_size_data
 {
 	double maximum_flow_rate;
 	double minimum_flow_rate;
-	minimum_flow_rate = 0.567 * (2.07 - 10.388 * (internal_diameter*39.37) + 32.82 * pow((internal_diameter*39.37), 2) + 1.696*pow((internal_diameter*39.37), 3)); // experimental equation, 1 m = 39.37 in
+	minimum_flow_rate = 0.567 * (2.07 - 10.388 * (internal_diameter*39.37) + 32.82 * pow((internal_diameter*39.37), 2.0) + 1.696*pow((internal_diameter*39.37), 3.0)); // experimental equation, 1 m = 39.37 in
 	maximum_flow_rate = 10.582 * minimum_flow_rate;
 	maximum_flow_rate *= 0.00756; //1 lb/min = 0.00756 kg/s
 	minimum_flow_rate *= 0.00756;
@@ -616,8 +638,8 @@ int __stdcall add_pipe_size_data
 		maximum_pressure_rating, // * pascals,
 		type,
 		mass_per_unit_Length, // * kilogram_per_meters
-		maximum_flow_rate,
-		minimum_flow_rate
+		maximum_flow_rate, //kg/s
+		minimum_flow_rate //kg/s
 	);
 	return 0;
 }
